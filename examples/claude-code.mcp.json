@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "tamperbox": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/absolute/path/to/tamperbox-mcp/dist/cli.js"]
+    }
+  }
+}

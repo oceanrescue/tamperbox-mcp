@@ -1,0 +1,1025 @@
+{
+  "engineVersion": "1.0.0",
+  "operations": [
+    {
+      "id": "jwt_decode",
+      "title": "Decode JWT",
+      "page": "/jwt",
+      "accepts": ["application/jwt"],
+      "produces": ["application/json"],
+      "description": "Decode a three-part JWT into header and payload. Does not verify its signature, trust, expiration or application policy. No keys are accepted.",
+      "options": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "example": {
+        "mediaType": "application/jwt",
+        "value": "eyJhbGciOiJub25lIn0.eyJzdWIiOiJleGFtcGxlIn0."
+      },
+      "version": "1.0.0",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "title": "Decode JWT"
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "maxLength": 100,
+                "description": "Media type of value.",
+                "enum": ["application/jwt"]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 1048576,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "options": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": ["input"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "enum": ["application/json"]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 2097152,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "outputs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "mediaType": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "Media type of value."
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 2097152,
+                  "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                }
+              },
+              "required": ["mediaType", "value"],
+              "additionalProperties": false
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "tool": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "tool"],
+              "additionalProperties": false
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provenance": {
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string"
+              },
+              "engineVersion": {
+                "type": "string"
+              },
+              "tool": {
+                "type": "string"
+              },
+              "attribution": {
+                "type": "string"
+              },
+              "editorUrl": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "provider",
+              "engineVersion",
+              "tool",
+              "attribution",
+              "editorUrl"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": ["output", "warnings", "provenance"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "json_format",
+      "title": "Format JSON",
+      "page": "/pipeline",
+      "accepts": ["application/json"],
+      "produces": ["application/json"],
+      "description": "Format JSON with bounded indentation. Rejects duplicate keys and numbers that cannot be represented safely. Does not validate an application schema.",
+      "options": {
+        "type": "object",
+        "properties": {
+          "indent": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 8,
+            "default": 2,
+            "description": "Spaces per indentation level."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "example": {
+        "mediaType": "application/json",
+        "value": "{\"example\":true}"
+      },
+      "version": "1.0.0",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "title": "Format JSON"
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "maxLength": 100,
+                "description": "Media type of value.",
+                "enum": ["application/json"]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 1048576,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "indent": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 8,
+                "default": 2,
+                "description": "Spaces per indentation level."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": ["input"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "enum": ["application/json"]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 2097152,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "outputs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "mediaType": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "Media type of value."
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 2097152,
+                  "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                }
+              },
+              "required": ["mediaType", "value"],
+              "additionalProperties": false
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "tool": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "tool"],
+              "additionalProperties": false
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provenance": {
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string"
+              },
+              "engineVersion": {
+                "type": "string"
+              },
+              "tool": {
+                "type": "string"
+              },
+              "attribution": {
+                "type": "string"
+              },
+              "editorUrl": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "provider",
+              "engineVersion",
+              "tool",
+              "attribution",
+              "editorUrl"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": ["output", "warnings", "provenance"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "json_to_yaml",
+      "title": "Convert JSON to YAML",
+      "page": "/pipeline",
+      "accepts": ["application/json"],
+      "produces": ["application/yaml"],
+      "description": "Convert JSON to YAML without network access. Rejects unsafe numeric precision and duplicate keys. Does not execute embedded text.",
+      "options": {
+        "type": "object",
+        "properties": {
+          "indent": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8,
+            "default": 2,
+            "description": "Spaces per indentation level."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "example": {
+        "mediaType": "application/json",
+        "value": "{\"example\":true}"
+      },
+      "version": "1.0.0",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "title": "Convert JSON to YAML"
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "maxLength": 100,
+                "description": "Media type of value.",
+                "enum": ["application/json"]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 1048576,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "indent": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 8,
+                "default": 2,
+                "description": "Spaces per indentation level."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": ["input"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "enum": ["application/yaml"]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 2097152,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "outputs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "mediaType": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "Media type of value."
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 2097152,
+                  "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                }
+              },
+              "required": ["mediaType", "value"],
+              "additionalProperties": false
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "tool": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "tool"],
+              "additionalProperties": false
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provenance": {
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string"
+              },
+              "engineVersion": {
+                "type": "string"
+              },
+              "tool": {
+                "type": "string"
+              },
+              "attribution": {
+                "type": "string"
+              },
+              "editorUrl": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "provider",
+              "engineVersion",
+              "tool",
+              "attribution",
+              "editorUrl"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": ["output", "warnings", "provenance"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "timestamp_to_iso",
+      "title": "Convert timestamp to ISO",
+      "page": "/unix-timestamp",
+      "accepts": ["text/plain"],
+      "produces": ["text/plain"],
+      "description": "Convert an explicit epoch unit or UTC calendar input to ISO text, preserving fractional precision. No live clock or local timezone inference.",
+      "options": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string",
+            "enum": ["s", "ms", "us", "ns"],
+            "description": "Epoch unit. Calendar strings use UTC unless an explicit offset is supplied."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "example": {
+        "mediaType": "text/plain",
+        "value": "1700000000"
+      },
+      "version": "1.0.0",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "title": "Convert timestamp to ISO"
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "maxLength": 100,
+                "description": "Media type of value.",
+                "enum": ["text/plain"]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 1048576,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "unit": {
+                "type": "string",
+                "enum": ["s", "ms", "us", "ns"],
+                "description": "Epoch unit. Calendar strings use UTC unless an explicit offset is supplied."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": ["input"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "enum": ["text/plain"]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 2097152,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "outputs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "mediaType": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "Media type of value."
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 2097152,
+                  "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                }
+              },
+              "required": ["mediaType", "value"],
+              "additionalProperties": false
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "tool": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "tool"],
+              "additionalProperties": false
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provenance": {
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string"
+              },
+              "engineVersion": {
+                "type": "string"
+              },
+              "tool": {
+                "type": "string"
+              },
+              "attribution": {
+                "type": "string"
+              },
+              "editorUrl": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "provider",
+              "engineVersion",
+              "tool",
+              "attribution",
+              "editorUrl"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": ["output", "warnings", "provenance"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "api_convert",
+      "title": "Convert API document",
+      "page": "/postman-converter",
+      "accepts": ["application/json", "application/yaml", "text/plain"],
+      "produces": ["application/json", "application/yaml", "text/plain"],
+      "description": "Convert supported Postman, OpenAPI or POSIX cURL text. Does not execute requests or fetch references. Conversion can lose unsupported features; secret replacement is incomplete and output needs review.",
+      "options": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": ["postman", "openapi-json", "openapi-yaml", "curl"],
+            "description": "Output format."
+          },
+          "redactSecrets": {
+            "type": "boolean",
+            "default": true,
+            "description": "Replace recognized credentials; not comprehensive secret detection."
+          }
+        },
+        "required": ["target"],
+        "additionalProperties": false
+      },
+      "example": {
+        "mediaType": "text/plain",
+        "value": "curl https://example.com"
+      },
+      "version": "1.0.0",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "title": "Convert API document"
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "maxLength": 100,
+                "description": "Media type of value.",
+                "enum": ["application/json", "application/yaml", "text/plain"]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 1048576,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "target": {
+                "type": "string",
+                "enum": ["postman", "openapi-json", "openapi-yaml", "curl"],
+                "description": "Output format."
+              },
+              "redactSecrets": {
+                "type": "boolean",
+                "default": true,
+                "description": "Replace recognized credentials; not comprehensive secret detection."
+              }
+            },
+            "required": ["target"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["input", "options"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "enum": ["application/json", "application/yaml", "text/plain"]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 2097152,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "outputs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "mediaType": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "Media type of value."
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 2097152,
+                  "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                }
+              },
+              "required": ["mediaType", "value"],
+              "additionalProperties": false
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "tool": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "tool"],
+              "additionalProperties": false
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provenance": {
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string"
+              },
+              "engineVersion": {
+                "type": "string"
+              },
+              "tool": {
+                "type": "string"
+              },
+              "attribution": {
+                "type": "string"
+              },
+              "editorUrl": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "provider",
+              "engineVersion",
+              "tool",
+              "attribution",
+              "editorUrl"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": ["output", "warnings", "provenance"],
+        "additionalProperties": false
+      }
+    }
+  ],
+  "pipelineSchema": {
+    "type": "object",
+    "properties": {
+      "version": {
+        "type": "integer",
+        "enum": [1]
+      },
+      "input": {
+        "type": "object",
+        "properties": {
+          "mediaType": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Media type of value."
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 1048576,
+            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+          }
+        },
+        "required": ["mediaType", "value"],
+        "additionalProperties": false
+      },
+      "steps": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{0,31}$"
+            },
+            "tool": {
+              "type": "string",
+              "enum": [
+                "jwt_decode",
+                "json_format",
+                "json_to_yaml",
+                "timestamp_to_iso",
+                "api_convert"
+              ],
+              "description": "Registered operation name."
+            },
+            "options": {
+              "type": "object"
+            }
+          },
+          "required": ["id", "tool"],
+          "additionalProperties": false
+        }
+      },
+      "return": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "maxLength": 32
+        }
+      }
+    },
+    "required": ["version", "input", "steps"],
+    "additionalProperties": false
+  },
+  "pipelineResultSchema": {
+    "type": "object",
+    "properties": {
+      "output": {
+        "type": "object",
+        "properties": {
+          "mediaType": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Media type of value."
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 2097152,
+            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+          }
+        },
+        "required": ["mediaType", "value"],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "mediaType": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Media type of value."
+            },
+            "value": {
+              "type": "string",
+              "maxLength": 2097152,
+              "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+            }
+          },
+          "required": ["mediaType", "value"],
+          "additionalProperties": false
+        }
+      },
+      "steps": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "tool": {
+              "type": "string"
+            }
+          },
+          "required": ["id", "tool"],
+          "additionalProperties": false
+        }
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "provenance": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "engineVersion": {
+            "type": "string"
+          },
+          "tool": {
+            "type": "string"
+          },
+          "attribution": {
+            "type": "string"
+          },
+          "editorUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "engineVersion",
+          "tool",
+          "attribution",
+          "editorUrl"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "required": ["outputs", "steps", "warnings", "provenance"],
+    "additionalProperties": false
+  },
+  "findSchema": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "maxLength": 256,
+        "description": "Task keywords only; do not include tokens or tool inputs."
+      },
+      "accepts": {
+        "type": "string",
+        "maxLength": 100
+      },
+      "produces": {
+        "type": "string",
+        "maxLength": 100
+      }
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "recipe": {
+    "id": "jwt-to-yaml",
+    "modifiedAt": "2026-10-13",
+    "title": "Decode a JWT and inspect it as YAML",
+    "description": "Decode only; the YAML is not evidence of signature validity or trust.",
+    "version": 1,
+    "steps": [
+      {
+        "id": "decode",
+        "tool": "jwt_decode",
+        "options": {}
+      },
+      {
+        "id": "yaml",
+        "tool": "json_to_yaml",
+        "options": {
+          "indent": 2
+        }
+      }
+    ],
+    "return": ["yaml"]
+  }
+}

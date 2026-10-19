@@ -1,0 +1,18 @@
+{
+  "name": "tamperbox-mcp-cloudflare-preview",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.node.js",
+    "check": "npm test && wrangler deploy --dry-run",
+    "check:production": "npm test && wrangler deploy --config wrangler.production.jsonc --dry-run",
+    "deploy:production": "wrangler deploy --config wrangler.production.jsonc",
+    "dev": "wrangler dev",
+    "types": "wrangler types",
+    "test:node-integration": "node --test test/node.integration.js"
+  },
+  "devDependencies": {
+    "wrangler": "4.149.0"
+  }
+}

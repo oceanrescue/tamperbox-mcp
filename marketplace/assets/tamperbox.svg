@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="512" height="512" role="img" aria-label="Tamperbox">
+  <title>Tamperbox icon</title>
+  <rect x="1" y="1" width="46" height="46" rx="11" fill="#1B1F1D"/>
+  <g transform="translate(7.2 7.2) scale(.7)">
+    <path d="M17 8H9V40H17M31 8H39V40H31" fill="none" stroke="#F6F7F5" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="miter"/>
+    <circle cx="19.5" cy="24" r="4" fill="#2BC48F"/>
+    <rect x="26.6" y="16.5" width="4.2" height="15" rx="1" fill="#F5A524"/>
+  </g>
+</svg>

@@ -1,0 +1,36 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "tamperbox-code-mode-preview",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-18",
+  "compatibility_flags": ["enable_request_signal"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": { "PUBLIC_HOST": "tamperbox-code-mode-preview.i5634446.workers.dev" },
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "2810192026",
+      "simple": { "limit": 60, "period": 60 },
+    },
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "MCP_CONTAINER", "class_name": "TamperboxCodeMode" },
+    ],
+  },
+  "exports": {
+    "TamperboxCodeMode": { "type": "durable-object", "storage": "sqlite" },
+  },
+  "containers": [
+    {
+      "class_name": "TamperboxCodeMode",
+      "scheduling_policy": "durable_object",
+      "images": {
+        "mcp": { "dockerfile": "../../Dockerfile", "build_context": "../.." },
+      },
+      "observability": { "logs": { "enabled": false } },
+    },
+  ],
+  "observability": { "enabled": false },
+}

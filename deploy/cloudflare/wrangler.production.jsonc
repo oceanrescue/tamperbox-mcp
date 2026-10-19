@@ -1,0 +1,39 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "tamperbox-code-mode",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-18",
+  "compatibility_flags": ["enable_request_signal"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "mcp.tamperbox.dev", "custom_domain": true }],
+  "vars": { "PUBLIC_HOST": "mcp.tamperbox.dev" },
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "2810192027",
+      "simple": { "limit": 60, "period": 60 },
+    },
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "MCP_CONTAINER", "class_name": "TamperboxCodeMode" },
+    ],
+  },
+  "exports": {
+    "TamperboxCodeMode": { "type": "durable-object", "storage": "sqlite" },
+  },
+  "containers": [
+    {
+      "class_name": "TamperboxCodeMode",
+      "scheduling_policy": "durable_object",
+      "images": {
+        "mcp": {
+          "image": "registry.cloudflare.com/ba7fb8da4369efe63064e1885553f353/tamperbox-code-mode-preview-tamperboxcodemode-mcp@sha256:b23070b9ddf820aa480184ba750b532235c5f2019cd8abe66c14edebaaafc753",
+        },
+      },
+      "observability": { "logs": { "enabled": false } },
+    },
+  ],
+  "observability": { "enabled": false },
+}

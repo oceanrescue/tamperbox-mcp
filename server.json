@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "dev.tamperbox/tamperbox-mcp",
+  "description": "Search and compose Tamperbox diagnostics and transforms with isolated JavaScript code mode.",
+  "version": "0.2.0",
+  "websiteUrl": "https://tamperbox.dev",
+  "repository": {
+    "url": "https://github.com/oceanrescue/tamperbox-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "tamperbox-mcp",
+      "version": "0.2.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

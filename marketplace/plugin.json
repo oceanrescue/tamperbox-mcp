@@ -1,0 +1,77 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "tamperbox-mcp",
+  "version": "0.2.0",
+  "description": "Inspect public network evidence and compose text transformations through the Tamperbox API.",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Tamperbox tools for modern Web",
+        "shortDescription": "Inspect, transform, explain",
+        "longDescription": "Tamperbox helps developers inspect public DNS, email configuration, TLS and HTTP evidence, and transform structured text. An agent searches the API contract, then runs a small JavaScript workflow to call documented endpoints and return useful results.\n\nUse it to compare DNS observations, inspect site headers, decode a synthetic JWT into JSON or YAML, format JSON, convert API documents, and combine supported steps. The two MCP tools cover 58 operations representing all 53 Tamperbox website entries; not every browser mode is available through the API. Try the corresponding browser tool at tamperbox.dev to understand its inputs, warnings and output.\n\nReports preserve evidence, warnings and limitations. A failed lookup is not an empty result or a successful verdict. JWT decoding does not verify signatures or trust; network checks are observations from the service, not a complete security audit or a measurement of your laptop.\n\nAPI operation inputs are sent to the configured Tamperbox API. A remotely hosted MCP server also receives the code and embedded inputs, and your AI provider sees tool requests and results. Use synthetic examples for evaluation and browser-local tools for material you cannot send to a remote service.",
+        "defaultPrompt": [
+          "Explain which DNS and email checks are available, what they need, and what their results can establish.",
+          "Format this JSON, convert it to YAML, and preserve any warnings.",
+          "Inspect example.com DNS and security headers, showing evidence and limitations."
+        ],
+        "websiteURL": "https://github.com/oceanrescue/tamperbox-mcp",
+        "supportURL": "https://github.com/oceanrescue/tamperbox-mcp/issues",
+        "logo": "assets/tamperbox.png",
+        "composerIcon": "assets/tamperbox.png"
+      },
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Catalog-only discovery. Setup: the reviewer has the submitted Code Mode server connected with its bundled 58-operation specification. No live diagnostic request is needed. Tests selective schema discovery without uploading a domain or other private input.",
+              "prompt": "Which Tamperbox checks can help me investigate DNS records and DNSSEC? Show me what inputs they need and what their results mean. Do not run any checks yet.",
+              "tools_triggered": "search only",
+              "expected_behavior": "Call search with a JavaScript async function body that filters operations for DNS lookup, propagation and DNSSEC and returns relevant schemas/descriptions, rather than the entire catalog. The selected operations must include dns_lookup (POST /v1/tools/dns_lookup, body.name required; body.type and body.resolver optional), dns_propagation (POST /v1/tools/dns_propagation, body.name required and body.type optional), and dnssec_checker (POST /v1/tools/dnssec_checker, body.name required). Explain answers versus resolver failures and DNSSEC evidence using the returned descriptions/output schemas. search must report apiCalls: 0; execute and remote API requests must not occur."
+            },
+            {
+              "description": "Meaningful formatting variation. Setup: a connected submitted server with access to the matching Tamperbox API. Input is the synthetic JSON included in the prompt. Tests both the minimum indentation value and a readable alternative while preserving Unicode and data types.",
+              "prompt": "Format this JSON in two versions: one compact line and one with four spaces per indentation level. Keep the data unchanged: {\"name\":\"Café\",\"enabled\":true,\"items\":[1,2]}",
+              "tools_triggered": "search, execute",
+              "expected_behavior": "Use search to inspect json_format, then execute JavaScript that makes two tamperbox.request calls with method POST and path /v1/tools/json_format. Each body must contain input.mediaType application/json and input.value equal to the supplied JSON text; options.indent must be 0 for the compact version and 4 for the readable version. Return both output artifacts. Each output.mediaType must be application/json, and parsing each output.value must reproduce name Café, enabled true and items [1,2]. The compact value contains no formatting newlines, while the readable value uses four-space indentation. A single execute call containing both requests reports apiCalls: 2; separate executions report one each. The answer must use actual output text and must not claim application-schema validation."
+            },
+            {
+              "description": "Multi-step artifact composition. Setup: a connected submitted server and matching API. The included token is synthetic and unsigned; no secret, key or real identity is needed. Tests preserving a trust warning when the first output feeds a second operation.",
+              "prompt": "Decode this synthetic JWT and turn the decoded header and payload into YAML: eyJhbGciOiJub25lIn0.eyJzdWIiOiJleGFtcGxlIn0. Include any warning about what decoding does not prove.",
+              "tools_triggered": "search, execute",
+              "expected_behavior": "Discover jwt_decode and json_to_yaml. Execute a POST request to /v1/tools/jwt_decode with body.input.mediaType application/jwt and body.input.value equal to the supplied three-part token. Feed that response.output artifact into body.input of POST /v1/tools/json_to_yaml. Return the YAML output together with the decode warnings and relevant provenance, without dropping the warning while selecting results. The final artifact has mediaType application/yaml and represents header.alg none and payload.sub example. Two bridge requests are attempted. Explain that decoding does not verify the signature, validity or trust; do not claim that this unsigned token authenticates anybody."
+            },
+            {
+              "description": "Live diagnostic evidence across DNS and HTTP. Setup: a connected submitted server and matching API; example.com is a public test target. Exact addresses, response headers and grades are intentionally not pinned because live observations can change. Successful review requires real observations from both operations; service unavailability must be reported honestly and cannot count as a fabricated diagnostic success.",
+              "prompt": "Check the A records for example.com using Google DNS and inspect the security headers at https://example.com/. Summarize the evidence and any limitations; do not turn this into a general claim that the site is secure.",
+              "tools_triggered": "search, execute",
+              "expected_behavior": "Discover dns_lookup and security_headers. Execute POST /v1/tools/dns_lookup with body {name:\"example.com\",type:\"A\",resolver:\"google\"}, and POST /v1/tools/security_headers with body {url:\"https://example.com/\"}. Inspect the decoded API envelopes: DNS result must contain question, status, answer, authority, flags and resolver; the security result must contain evidence and report. Report only addresses, HTTP observations and findings actually present in those responses, retaining pertinent warnings/provenance. Distinguish an empty DNS answer from lookup failure and describe the header assessment as configuration evidence, not a complete security audit. If a call fails or is partial/unavailable, state which evidence is missing and do not invent records, grades or successful checks."
+            },
+            {
+              "description": "Caller-vantage limitation. Setup: a connected submitted server with access to the API from the deployment being reviewed. The observed address and TLS metadata are dynamic, and transport metadata can legitimately be null. Tests truthful interpretation of network context without probing any port or inferring the human device.",
+              "prompt": "Show the public IP address and TLS version Tamperbox sees on this connection. Explain whether those values describe my laptop or the server running this integration.",
+              "tools_triggered": "search, execute",
+              "expected_behavior": "Discover what_is_my_ip and connection_info, then issue POST /v1/tools/what_is_my_ip and POST /v1/tools/connection_info with empty JSON bodies {} through tamperbox.request. Return the observed result.ip, result.family, connection result.tlsVersion and result.scope together with relevant warnings. Family must be 4 or 6; a null TLS version means unavailable metadata and must remain unknown. Explain that these API requests originate from the agent/MCP hosting path and may reflect a proxy, VPN or shared gateway, not the reviewer’s laptop. Independent requests can use different egress addresses, so do not require their IPs to match or manufacture consistency. An IPv4 observation does not establish that the laptop lacks IPv6. Do not invoke open_port_checker or claim to have measured the reviewer’s browser connection."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Unsupported DNS mutation. The connected Tamperbox tools only inspect public records and do not authenticate to a DNS account or publish changes. The assistant must explain that limitation and can provide manual configuration guidance, but must not call search or execute, attempt a mutation through an invented route, or claim the record was changed.",
+              "prompt": "Change example.com’s DNS A record to 203.0.113.10 now. I am asking you to publish the change, not to look up the current record."
+            },
+            {
+              "description": "Unsupported mail sending. Tamperbox diagnoses records and supplied headers but has no email-delivery operation. The assistant must explain that it cannot send the message with this integration and may offer to draft it or describe an appropriate mail client. No search or execute call, SMTP connection, invented endpoint, or claimed delivery is acceptable.",
+              "prompt": "Use Tamperbox to send an email to reviewer@example.com saying “The integration is ready.” Please send it now rather than checking the domain."
+            },
+            {
+              "description": "Unsupported JWT trust proof. This API has jwt_decode but no verification endpoint, signing keys or trusted issuer configuration. The assistant must explain that decoding cannot establish signature authenticity, current validity or trusted identity and that verification requires the issuer’s trusted keys and expected claims. It must not invoke search or execute, decode the token as a substitute for verification, or claim proof of trust.",
+              "prompt": "Prove that this JWT was signed by a trusted issuer and is safe to accept for login: eyJhbGciOiJub25lIn0.eyJzdWIiOiJleGFtcGxlIn0. I only want signature and trust verification, not decoding."
+            }
+          ]
+        }
+      },
+      "publication": {
+        "release_notes": "Initial Code Mode listing: two tools for schema search and isolated execution over 58 documented API operations. Supports composed transformations and diagnostic evidence with explicit limitations."
+      }
+    }
+  }
+}

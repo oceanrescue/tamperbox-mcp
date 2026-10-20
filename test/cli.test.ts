@@ -51,7 +51,7 @@ describe('CLI configuration and stdio distribution', () => {
       spawnSync(process.execPath, [cli, '--version'], {
         encoding: 'utf8',
       }).stdout.trim(),
-    ).toBe('0.2.0');
+    ).toBe('0.3.0');
     const r = spawnSync(process.execPath, [cli, '--private-token-value'], {
       encoding: 'utf8',
     });

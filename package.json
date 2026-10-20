@@ -1,6 +1,6 @@
 {
   "name": "tamperbox-mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Code-mode MCP server for the Tamperbox API with isolated JavaScript execution",
   "type": "module",
   "license": "MIT",

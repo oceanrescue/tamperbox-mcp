@@ -99,8 +99,14 @@ try {
   assert.equal(discovery.isError, undefined, JSON.stringify(discovery));
   assert.equal(discovery.structuredContent.apiCalls, 0);
   assert.equal(routed.length, 0);
-  assert.equal(discovery.structuredContent.result.operations.length, 58);
-  assert.equal(discovery.structuredContent.result.websiteToolIds.length, 53);
+  assert.equal(
+    discovery.structuredContent.result.operations.length,
+    agentOperations.length,
+  );
+  assert.equal(
+    discovery.structuredContent.result.websiteToolIds.length,
+    registry.tools.length,
+  );
   const completed = [];
   for (const op of agentOperations) {
     const request = {

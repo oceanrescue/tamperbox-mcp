@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { operations, spec, validateRequest } from '../dist/spec.js';
 
 describe('complete bundled API contract', () => {
-  it('covers every one of the 53 published website tool IDs with 58 operations', () => {
-    expect(operations).toHaveLength(58);
+  it('covers all 53 pages and their expanded server capabilities', () => {
+    expect(operations).toHaveLength(114);
     expect(new Set(operations.flatMap((o) => o.websiteToolIds)).size).toBe(53);
-    expect(new Set(operations.map((o) => o.operationId)).size).toBe(58);
+    expect(new Set(operations.map((o) => o.operationId)).size).toBe(
+      operations.length,
+    );
     expect(Object.isFrozen(spec.paths)).toBe(true);
   });
   it.each(operations.filter((o) => o.method === 'POST'))(

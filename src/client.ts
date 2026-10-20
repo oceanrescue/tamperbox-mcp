@@ -114,11 +114,55 @@ export class ApiClient implements Caller, RequestCaller {
       );
     }
     if (!response.ok) {
-      await response.body?.cancel();
+      // Keep bounded machine-readable guidance, never upstream prose or inputs.
+      const details: { upstreamCode?: string; retryAfterSeconds?: number } = {};
+      const retry = response.headers.get('retry-after');
+      if (retry && /^\d{1,6}$/.test(retry))
+        details.retryAfterSeconds = Math.min(3600, Number(retry));
+      if (
+        /^application\/(?:problem\+)?json(?:;|$)/i.test(
+          response.headers.get('content-type') ?? '',
+        )
+      ) {
+        const reader = response.body?.getReader();
+        if (reader) {
+          try {
+            const chunks: Uint8Array[] = [];
+            let size = 0;
+            while (true) {
+              const { value, done } = await reader.read();
+              if (done) break;
+              size += value.byteLength;
+              if (size > 8192) break;
+              chunks.push(value);
+            }
+            if (size <= 8192) {
+              const bytes = new Uint8Array(size);
+              let offset = 0;
+              for (const chunk of chunks) {
+                bytes.set(chunk, offset);
+                offset += chunk.length;
+              }
+              const problem = JSON.parse(new TextDecoder().decode(bytes));
+              if (
+                typeof problem?.code === 'string' &&
+                /^[a-z0-9_-]{1,64}$/i.test(problem.code)
+              )
+                details.upstreamCode = problem.code;
+            }
+          } catch {
+            /* Error guidance is optional; preserve the HTTP failure. */
+          } finally {
+            await reader.cancel().catch(() => {});
+            reader.releaseLock();
+          }
+        }
+      } else await response.body?.cancel();
       throw new SafeError(
         'upstream_http',
         `Tamperbox API returned HTTP ${response.status}.`,
         response.status,
+        details,
       );
     }
     const max = this.options.maxResponseBytes ?? 2097152;

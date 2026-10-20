@@ -4,6 +4,20 @@ For local clients, prefer stdio. For remote clients, run the Node service behind
 
 A dedicated Cloudflare container adapter is maintained in [deploy/cloudflare](https://github.com/oceanrescue/tamperbox-mcp/tree/main/deploy/cloudflare). Production is `https://mcp.tamperbox.dev/mcp` (no authentication), deployed with `deploy/cloudflare/wrangler.production.jsonc`. See the [production acceptance and rollback record](production-acceptance.md). The public preview is `https://tamperbox-code-mode-preview.i5634446.workers.dev/mcp` (no authentication). Its [acceptance record](hosted-acceptance.md) includes real client and lifecycle checks. The adapter supplies a separate preview hostname, bounded startup/lifecycle handling, ingress validation and rate limiting. Its tests include cancellation through the actual Node/QuickJS service. See that directory for resource allocation and deployment instructions; the default configuration manages the preview, while the production configuration owns `mcp.tamperbox.dev`.
 
+The root scripts expose the complete Worker workflow:
+
+```sh
+npm ci
+npm --prefix deploy/cloudflare ci
+npm run worker:dev                 # http://localhost:8787
+npm run worker:test                # unit and Node/QuickJS integration tests
+npm run worker:check               # tests plus local-config dry run
+npm run worker:check:production    # tests plus production dry run
+npm run worker:deploy:production   # explicit production deployment
+```
+
+The local Worker config permits HTTP only for its exact loopback origin. Preview and production accept only their exact HTTPS origins. Docker is required to build the Cloudflare Container; see the deployment package README for the Podman adapter and local secret handling.
+
 ```sh
 npm ci
 npm run build

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { edgeFetch, ContainerProxy, readBody } from '../adapter.js';
 const host = 'preview.example.workers.dev';
+const origin = `https://${host}`;
 const request = (path = '/mcp', options = {}) =>
   new Request(`https://${host}${path}`, {
     method: 'POST',
@@ -13,7 +14,7 @@ const request = (path = '/mcp', options = {}) =>
     ...options,
   });
 const env = (overrides = {}) => ({
-  PUBLIC_HOST: host,
+  PUBLIC_ORIGIN: origin,
   RATE_LIMITER: { limit: async () => ({ success: true }) },
   MCP_CONTAINER: {
     idFromName: (name) => name,
@@ -85,7 +86,7 @@ const fixture = (
 };
 test('edge fails closed until exact public host and limiter are configured', async () => {
   assert.equal(
-    (await edgeFetch(request(), env({ PUBLIC_HOST: '' }))).status,
+    (await edgeFetch(request(), env({ PUBLIC_ORIGIN: '' }))).status,
     503,
   );
   assert.equal(
@@ -101,6 +102,65 @@ test('edge fails closed until exact public host and limiter are configured', asy
       await edgeFetch(
         request('/mcp', { headers: { 'content-type': 'application/json' } }),
         env(),
+      )
+    ).status,
+    403,
+  );
+});
+test('local development permits only its configured loopback HTTP origin', async () => {
+  const localEnv = env({
+    PUBLIC_ORIGIN: 'http://localhost:8787',
+    LOCAL_DEVELOPMENT: 'true',
+  });
+  const localRequest = new Request('http://localhost:8787/health', {
+    headers: { 'cf-connecting-ip': '127.0.0.1' },
+  });
+  assert.equal((await edgeFetch(localRequest, localEnv)).status, 200);
+  assert.equal(
+    (
+      await edgeFetch(
+        new Request('http://example.com/health', {
+          headers: { 'cf-connecting-ip': '127.0.0.1' },
+        }),
+        env({
+          PUBLIC_ORIGIN: 'http://example.com',
+          LOCAL_DEVELOPMENT: 'true',
+        }),
+      )
+    ).status,
+    503,
+  );
+});
+test('local origin exceptions cannot weaken production or trust another local origin', async () => {
+  for (const publicOrigin of [
+    'http://localhost:8787',
+    'https://preview.example.workers.dev:8443',
+    'https://preview.example.workers.dev/path',
+    'https://user:pass@preview.example.workers.dev',
+  ]) {
+    assert.equal(
+      (await edgeFetch(request(), env({ PUBLIC_ORIGIN: publicOrigin }))).status,
+      503,
+    );
+  }
+  const localEnv = env({
+    PUBLIC_ORIGIN: 'http://localhost:8787',
+    LOCAL_DEVELOPMENT: 'true',
+  });
+  for (const url of [
+    'http://localhost:8788/health',
+    'http://127.0.0.1:8787/health',
+    'https://localhost:8787/health',
+  ]) {
+    assert.equal((await edgeFetch(new Request(url), localEnv)).status, 403);
+  }
+  assert.equal(
+    (
+      await edgeFetch(
+        new Request('http://localhost:8787/health', {
+          headers: { origin: 'http://localhost:8788' },
+        }),
+        localEnv,
       )
     ).status,
     403,

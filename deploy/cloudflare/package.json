@@ -4,15 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test test/*.node.js",
-    "check": "npm test && wrangler deploy --dry-run",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "node --test test/adapter.node.js test/podman.node.js",
+    "test:integration": "npm --prefix ../.. run build && node --test test/node.integration.js",
+    "check": "npm test && wrangler deploy --config wrangler.local.jsonc --dry-run",
+    "check:preview": "npm test && wrangler deploy --config wrangler.jsonc --dry-run",
     "check:production": "npm test && wrangler deploy --config wrangler.production.jsonc --dry-run",
     "deploy:production": "wrangler deploy --config wrangler.production.jsonc",
-    "dev": "wrangler dev",
-    "types": "wrangler types",
-    "test:node-integration": "node --test test/node.integration.js"
+    "deploy:preview": "wrangler deploy --config wrangler.jsonc",
+    "dev": "wrangler dev --config wrangler.local.jsonc --local --port 8787",
+    "dev:preview": "wrangler dev --config wrangler.jsonc",
+    "types": "wrangler types --config wrangler.local.jsonc"
   },
   "devDependencies": {
-    "wrangler": "4.149.0"
+    "wrangler": "4.151.3"
   }
 }

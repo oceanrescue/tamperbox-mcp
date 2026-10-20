@@ -71,7 +71,7 @@ jobs:
       - run: npm run build
       - run: npm ci --ignore-scripts
         working-directory: deploy/cloudflare
-      - run: npm run check && npm run test:node-integration
+      - run: npm run check && npm run check:production
         working-directory: deploy/cloudflare
       - run: npm audit --audit-level=high
         working-directory: deploy/cloudflare

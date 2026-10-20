@@ -59,7 +59,7 @@ test('client abort crosses adapter HTTP proxy and terminates four real QuickJS g
     },
   };
   const proxy = new ContainerProxy(ctx, {
-    PUBLIC_HOST: 'preview.example.workers.dev',
+    PUBLIC_ORIGIN: 'https://preview.example.workers.dev',
   });
   const aborts = Array.from({ length: 4 }, () => new AbortController());
   const code =

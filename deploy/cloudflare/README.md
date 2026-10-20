@@ -1,14 +1,53 @@
-# Cloudflare production and preview
+# Cloudflare local development, production and preview
 
 This private deployment package runs the Node/QuickJS server in a Cloudflare Container. `wrangler.production.jsonc` owns `mcp.tamperbox.dev` through the `tamperbox-code-mode` Worker. The default `wrangler.jsonc` continues to manage the separate preview. No deployment command runs automatically.
+
+## Local development
+
+Install both dependency trees once, then start Wrangler from the repository root:
+
+```sh
+npm ci
+npm --prefix deploy/cloudflare ci
+npm run worker:dev
+```
+
+The local-only configuration is `wrangler.local.jsonc`. It listens at `http://localhost:8787`, builds the repository Dockerfile and permits plain HTTP only for the configured loopback origin. Production and preview continue to require their exact HTTPS origins. Use Docker for the complete local container runtime. Podman needs both a build adapter and its API socket:
+
+```sh
+export DOCKER_HOST="unix://$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}')"
+WRANGLER_DOCKER_BIN="$PWD/deploy/cloudflare/wrangler-podman.mjs" npm run worker:dev
+```
+
+Both settings are needed: the wrapper builds images, while the socket connects the local runtime to Podman's container API. Without the socket, Wrangler can build successfully but container requests fail.
+
+The tested macOS Podman engine builds images and passes deployment dry runs, but cannot start Wrangler's network sidecar: `crun: cannot set memory swappiness with cgroupv2`. Setting the socket does not fix this engine limitation. Full local `/health` readiness requires a compatible Docker engine and was not verified on this Podman machine.
+
+Check readiness at `http://localhost:8787/health` and connect an MCP client to `http://localhost:8787/mcp`. To require a bearer token locally, create the ignored file `deploy/cloudflare/.dev.vars` containing `MCP_TOKEN=...`; never commit that file.
+
+## Tests
+
+From the repository root:
+
+```sh
+npm run worker:test
+npm run worker:check
+npm run worker:check:production
+```
+
+`worker:test` builds the root TypeScript package, runs the adapter and Podman-wrapper unit tests, and runs the real Node/QuickJS cancellation integration test. `worker:check` additionally performs a local-config deployment dry run and requires Docker. `worker:check:production` validates the production config and pinned image without deploying.
+
+Review validation on 20 October 2026: root package checks passed 360 tests, coverage and packed-package smoke checks; Worker checks passed 30 unit tests and one real Node/QuickJS cancellation integration test. Local and production deployment dry runs passed with Wrangler 4.151.3. The local HTTP and inspector listeners started; the full container health check hit the Podman limitation above. No deployment was performed.
 
 ## Production
 
 The public endpoint is `https://mcp.tamperbox.dev/mcp`, with no authentication. The production image is pinned by digest to the artifact verified in preview. Updating source code alone does not update that image: build and verify a new preview image, then explicitly update the production digest before deploying. Keep the referenced registry image available while either environment uses it.
 
+From the repository root:
+
 ```sh
-npm run check:production
-npm run deploy:production
+npm run worker:check:production
+npm run worker:deploy:production
 # From the repository root after deployment:
 TAMPERBOX_MCP_URL=https://mcp.tamperbox.dev/mcp npm run test:hosted
 ```
@@ -17,14 +56,13 @@ Production disables workers.dev and version preview URLs, uses its own Durable O
 
 ## Preview
 
-The preview hostname is `tamperbox-code-mode-preview.i5634446.workers.dev`. `PUBLIC_HOST` must exactly match the published hostname; a missing or invalid value fails closed. The Worker accepts only HTTPS `/mcp` (POST/OPTIONS) and `/health` (GET).
+The preview hostname is `tamperbox-code-mode-preview.i5634446.workers.dev`. `PUBLIC_ORIGIN` must exactly match the published origin; a missing or invalid value fails closed. The Worker accepts only HTTPS `/mcp` (POST/OPTIONS) and `/health` (GET).
 
 ```sh
 cd deploy/cloudflare
 npm ci
 npm test
-npm run test:node-integration  # requires the root npm run build first
-npm run check                # tests and deployment dry run; requires Docker
+npm run check:preview # tests and deployment dry run; requires Docker
 ```
 
 For this machine's Podman engine, use the included standalone compatibility wrapper:

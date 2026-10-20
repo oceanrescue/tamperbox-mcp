@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 — Release candidate
+## 0.3.0 — 2026-10-20 (hosted; npm publication pending)
 
 - Expand the REST contract from 58 to 114 operations while retaining `search` and `execute`.
 - Expose pasted-evidence analysis, policy builders, JWT verification/rebuilding/fixtures, timestamp workflows and conversion reports.

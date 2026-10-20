@@ -6,7 +6,7 @@ A code-mode [Model Context Protocol](https://modelcontextprotocol.io/) server fo
 
 **Documentation:** [docs.tamperbox.dev](https://docs.tamperbox.dev) has the [MCP overview](https://docs.tamperbox.dev/mcp/), [client setup](https://docs.tamperbox.dev/mcp/connect/), [code mode](https://docs.tamperbox.dev/mcp/code-mode/), [limits](https://docs.tamperbox.dev/reference/limits/) and, per tool, the method, finding reference and repair guide behind each operation ([tool pages](https://docs.tamperbox.dev/tools/)). Agents can read the same pages as Markdown from [docs.tamperbox.dev/llms.txt](https://docs.tamperbox.dev/llms.txt).
 
-**Release candidate:** version 0.3.0 expands the bundled contract from 58 to 114 operations. Hosted deployment and production acceptance are recorded separately; the npm package is not published by the hosted deployment.
+**Hosted release:** version 0.3.0 is published at [mcp.tamperbox.dev/mcp](https://mcp.tamperbox.dev/mcp), with 114 operations and unchanged `search`/`execute` tools. See the [release evidence and remaining service limitations](docs/page-parity-release-2026-10-20.md). The npm registry package has not been updated to 0.3.0 by this hosted release.
 
 Artifact counterparts now cover JWT verification and rebuilding, synthetic signed fixtures, timestamp batches and editing, pasted DNS/HTTP/TLS evidence, policy builders, cookie analysis, sitemap and seller inspection, and site-file repairs. Visual rendering, clipboard actions and browser history remain interface features. Search the exact schema before building a workflow. This server requires no OpenAI or Anthropic key to start.
 

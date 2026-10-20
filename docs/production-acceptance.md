@@ -1,5 +1,8 @@
 # Production Code Mode acceptance — updated 2026-10-19
 
+Historical 0.2.0 deployment record. The current hosted release is documented in
+[the 20 October 2026 page-capability release](page-parity-release-2026-10-20.md).
+
 Endpoint: **https://mcp.tamperbox.dev/mcp**. Authentication: **none**.
 
 The owner authorized replacing the legacy service on this hostname. Cloudflare now routes it to `tamperbox-code-mode`; `api.tamperbox.dev` and `docs.tamperbox.dev` remain on `tamperbox-agents`. This is a tool-interface change: clients must discover and use `search` and `execute`, replacing any legacy tool-name allowlists.

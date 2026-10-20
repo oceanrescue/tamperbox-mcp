@@ -16,7 +16,7 @@ npm run worker:check:production    # tests plus production dry run
 npm run worker:deploy:production   # explicit production deployment
 ```
 
-The local Worker config permits HTTP only for its exact loopback origin. Preview and production accept only their exact HTTPS origins. Docker is required to build the Cloudflare Container; see the deployment package README for the Podman adapter and local secret handling.
+The local Worker config permits HTTP only for its exact loopback origin. Preview and production accept only their exact HTTPS origins. A container engine is required to build the Cloudflare Container. Podman builds use the verified compatibility adapter; see the deployment package README for setup, the separate local Wrangler runtime check, and local secret handling.
 
 ```sh
 npm ci

@@ -12,7 +12,7 @@ npm --prefix deploy/cloudflare ci
 npm run worker:dev
 ```
 
-The local-only configuration is `wrangler.local.jsonc`. It listens at `http://localhost:8787`, builds the repository Dockerfile and permits plain HTTP only for the configured loopback origin. Production and preview continue to require their exact HTTPS origins. Use Docker for the complete local container runtime. Podman needs both a build adapter and its API socket:
+The local-only configuration is `wrangler.local.jsonc`. It listens at `http://localhost:8787`, builds the repository Dockerfile and permits plain HTTP only for the configured loopback origin. Production and preview continue to require their exact HTTPS origins. For this machine’s Podman setup, configure the existing build adapter and API socket:
 
 ```sh
 export DOCKER_HOST="unix://$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}')"
@@ -21,7 +21,7 @@ WRANGLER_DOCKER_BIN="$PWD/deploy/cloudflare/wrangler-podman.mjs" npm run worker:
 
 Both settings are needed: the wrapper builds images, while the socket connects the local runtime to Podman's container API. Without the socket, Wrangler can build successfully but container requests fail.
 
-The tested macOS Podman engine builds images and passes deployment dry runs, but cannot start Wrangler's network sidecar: `crun: cannot set memory swappiness with cgroupv2`. Setting the socket does not fix this engine limitation. Full local `/health` readiness requires a compatible Docker engine and was not verified on this Podman machine.
+Podman container validation and the build/registry-digest adapter were previously verified; see the [container verification record](../../docs/verification.md) and [hosted acceptance record](../../docs/hosted-acceptance.md). Those results remain valid. In the 20 October review, a separate `wrangler dev` test with Wrangler 4.151.3 reached the local listener but failed when starting its network sidecar with `crun: cannot set memory swappiness with cgroupv2`, even with the API socket configured. That run did not establish local `/health` readiness. The cause and remedy remain unverified; this single result does not establish a general Podman limitation or a requirement to switch to Docker.
 
 Check readiness at `http://localhost:8787/health` and connect an MCP client to `http://localhost:8787/mcp`. To require a bearer token locally, create the ignored file `deploy/cloudflare/.dev.vars` containing `MCP_TOKEN=...`; never commit that file.
 
@@ -35,9 +35,9 @@ npm run worker:check
 npm run worker:check:production
 ```
 
-`worker:test` builds the root TypeScript package, runs the adapter and Podman-wrapper unit tests, and runs the real Node/QuickJS cancellation integration test. `worker:check` additionally performs a local-config deployment dry run and requires Docker. `worker:check:production` validates the production config and pinned image without deploying.
+`worker:test` builds the root TypeScript package, runs the adapter and Podman-wrapper unit tests, and runs the real Node/QuickJS cancellation integration test. `worker:check` additionally performs a local-config deployment dry run and requires a container engine (the Podman wrapper was verified for this build). `worker:check:production` validates the production config and pinned image without deploying.
 
-Review validation on 20 October 2026: root package checks passed 360 tests, coverage and packed-package smoke checks; Worker checks passed 30 unit tests and one real Node/QuickJS cancellation integration test. Local and production deployment dry runs passed with Wrangler 4.151.3. The local HTTP and inspector listeners started; the full container health check hit the Podman limitation above. No deployment was performed.
+Review validation on 20 October 2026: root package checks passed 360 tests, coverage and packed-package smoke checks; Worker checks passed 30 unit tests and one real Node/QuickJS cancellation integration test. Local and production deployment dry runs passed with Wrangler 4.151.3. The local HTTP and inspector listeners started; the full container health check failed at network-sidecar startup as recorded above. No deployment was performed.
 
 ## Production
 
@@ -62,13 +62,13 @@ The preview hostname is `tamperbox-code-mode-preview.i5634446.workers.dev`. `PUB
 cd deploy/cloudflare
 npm ci
 npm test
-npm run check:preview # tests and deployment dry run; requires Docker
+npm run check:preview # tests and deployment dry run; requires a container engine
 ```
 
 For this machine's Podman engine, use the included standalone compatibility wrapper:
 
 ```sh
-WRANGLER_DOCKER_BIN="$PWD/wrangler-podman.mjs" npm run check
+WRANGLER_DOCKER_BIN="$PWD/wrangler-podman.mjs" npm run check:preview
 ```
 
 The wrapper preserves target architecture and verifies the remote manifest digest after a registry push. The dry run builds locally without pushing an image or deploying a Worker. No sibling checkout is required.
@@ -83,4 +83,4 @@ Request bodies are streamed into a bounded 1 MiB buffer with a five-second deadl
 
 The edge uses the platform `cf-connecting-ip` for its rate-limit binding (60 requests per minute per client, approximate per Cloudflare location), never a forwarding header. Node's independent global request limit remains in place. Forwarding uses only the fixed `http://container:3000` origin, and Node allows only the `container` Host. User-supplied forwarding, cookie and Host headers are dropped. The configured public origin is allowed; additional exact HTTPS origins can be supplied in `ALLOWED_ORIGINS`. Authorization is preserved. An optional `MCP_TOKEN` Worker secret is checked at the edge and injected into Node as its inbound bearer token; it is never an upstream API credential. The default preview is public and has no secret configured.
 
-This adapter uses the current [`ctx.container` API](https://developers.cloudflare.com/containers/api/durable-object-container/) with the `durable_object` scheduling policy and named images. The private package pins Wrangler 4.149.0. Review the resource allocation and account billing before an explicitly authorized deployment; this package does not run a deployment itself.
+This adapter uses the current [`ctx.container` API](https://developers.cloudflare.com/containers/api/durable-object-container/) with the `durable_object` scheduling policy and named images. The private package pins Wrangler 4.151.3. Review the resource allocation and account billing before an explicitly authorized deployment; this package does not run a deployment itself.

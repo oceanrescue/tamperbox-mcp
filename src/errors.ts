@@ -4,6 +4,8 @@ export interface ErrorDetails {
   message?: string;
   line?: number;
   operation?: string;
+  upstreamCode?: string;
+  retryAfterSeconds?: number;
   validation?: Array<{ path: string; keyword: string; message: string }>;
 }
 export class SafeError extends Error {

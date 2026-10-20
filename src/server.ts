@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { spec, operations } from './spec.js';
 import { CodeRunner } from './runner.js';
 import { safeError } from './errors.js';
-export const VERSION = '0.2.0';
+export const VERSION = '0.3.0';
 const content = (value: Record<string, unknown>) => ({
   structuredContent: value,
   content: [{ type: 'text' as const, text: JSON.stringify(value) }],
@@ -45,7 +45,7 @@ export function createServer(
             : 'Execute Tamperbox API code',
         description:
           mode === 'search'
-            ? 'Run an async JavaScript function body over the complete local OpenAPI spec and derived operations array. Filter and return only relevant endpoints, input/output schemas, descriptions and examples. Example: return operations.filter(o => /json/i.test(o.summary + " " + o.description)); No API requests or private inputs are needed. Limits: 64 KiB code, 15 seconds by default, 2 MiB returned JSON.'
+            ? 'Discover DNS, email authentication/routing, TLS, website security, network diagnostics, site files, JWT verification/signing, timestamp workflows and API conversion. Includes pasted-evidence analysis and builders. Run an async JavaScript function body over the complete local OpenAPI spec and derived operations array. Filter by tags, descriptions and schemas; return only relevant endpoints and examples. Example: return operations.filter(o => /jwt/i.test(o.operationId)); No API requests or private inputs are needed. Limits: 64 KiB code, 15 seconds by default, 2 MiB returned JSON.'
             : 'Run an async JavaScript function body in an isolated runtime. Search schemas first, then call await tamperbox.request({method:"POST",path:"/v1/tools/json_format",body:{input:{mediaType:"application/json",value:"{}"}}}), combine results and return JSON. method/path must be documented; query is a scalar-value object; body must match the schema. Returns the decoded JSON response body. Inputs go to Tamperbox; target-check tools can contact the requested public target. No arbitrary URLs, headers, files, imports, process or secrets. Limits: 64 KiB code, 20 bridge calls, 4 in flight, 15 seconds by default, 2 MiB output. JWT decoding does not verify trust.',
         inputSchema,
         outputSchema,

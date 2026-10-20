@@ -4,7 +4,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { validateRequest } from '../dist/spec.js';
 
-const expectedVersion = '0.2.0';
+const expectedVersion = '0.3.0';
 const startedAt = new Date().toISOString();
 const checks = [];
 let endpoint, client, transport;
@@ -235,7 +235,7 @@ try {
           'return {operations:operations.length,websiteTools:new Set(operations.flatMap(o=>o.websiteToolIds)).size};',
         );
         assert.deepEqual(result, {
-          result: { operations: 58, websiteTools: 53 },
+          result: { operations: 114, websiteTools: 53 },
           apiCalls: 0,
         });
         return result;

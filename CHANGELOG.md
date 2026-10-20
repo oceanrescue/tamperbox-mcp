@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 — 2026-10-20 (hosted; npm publication pending)
+
+- Expand the REST contract from 58 to 114 operations while retaining `search` and `execute`.
+- Expose pasted-evidence analysis, policy builders, JWT verification/rebuilding/fixtures, timestamp workflows and conversion reports.
+- Add sitemap, alternate site-file, seller, IP-enrichment, mail-TLS and BGP-incident adapters.
+- Declare richer existing mail evidence and operation-family tags.
+- Preserve bounded upstream error codes and retry guidance without reflecting upstream prose.
+- Extend complete-catalog acceptance and package-size gates for the larger offline specification.
+
 ## 0.2.0 — 2026-10-18
 
 - Replace `tamperbox_discover` and `tamperbox_execute` with `search` and `execute`. Both accept an async JavaScript function body; search inspects the bundled specification without network access.

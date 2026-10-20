@@ -67,6 +67,30 @@ describe('bounded REST bridge', () => {
     ).rejects.toMatchObject({ code: 'invalid_arguments' });
     expect(fetcher).not.toHaveBeenCalled();
   });
+  it('preserves bounded retry guidance and machine code, not upstream prose', async () => {
+    const fetcher = vi.fn(async () =>
+      Response.json(
+        {
+          code: 'rate_limited',
+          detail: 'sensitive input must not escape',
+          hint: 'private data',
+        },
+        { status: 429, headers: { 'retry-after': '999999' } },
+      ),
+    );
+    await expect(
+      new ApiClient({ fetch: fetcher }).call('json_format', args),
+    ).rejects.toMatchObject({
+      code: 'upstream_http',
+      details: { upstreamCode: 'rate_limited', retryAfterSeconds: 3600 },
+    });
+    try {
+      await new ApiClient({ fetch: fetcher }).call('json_format', args);
+    } catch (error) {
+      expect(JSON.stringify(error)).not.toContain('sensitive');
+      expect(JSON.stringify(error)).not.toContain('private');
+    }
+  });
   it.each([301, 400, 401, 403, 404, 413, 429, 500, 503])(
     'handles HTTP %i without echo or retries',
     async (status) => {

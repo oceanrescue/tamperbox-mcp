@@ -12,16 +12,19 @@ npm --prefix deploy/cloudflare ci
 npm run worker:dev
 ```
 
-The local-only configuration is `wrangler.local.jsonc`. It listens at `http://localhost:8787`, builds the repository Dockerfile and permits plain HTTP only for the configured loopback origin. Production and preview continue to require their exact HTTPS origins. For this machine’s Podman setup, configure the existing build adapter and API socket:
+The local-only configuration is `wrangler.local.jsonc`. It listens at `http://localhost:8787`, builds the repository Dockerfile and permits plain HTTP only for the configured loopback origin. Production and preview continue to require their exact HTTPS origins.
+
+For Podman, use this command from the repository root instead of `worker:dev`:
 
 ```sh
-export DOCKER_HOST="unix://$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}')"
-WRANGLER_DOCKER_BIN="$PWD/deploy/cloudflare/wrangler-podman.mjs" npm run worker:dev
+npm run worker:dev:podman
 ```
 
-Both settings are needed: the wrapper builds images, while the socket connects the local runtime to Podman's container API. Without the socket, Wrangler can build successfully but container requests fail.
+The launcher discovers the macOS Podman machine socket, uses the existing image-build adapter, and starts a private Unix-socket API adapter for Wrangler. If the socket is elsewhere (including native Linux), set `DOCKER_HOST=unix:///absolute/path/to/podman.sock`. `WRANGLER_DOCKER_HOST` takes precedence when both are set. Podman must already be running.
 
-Podman container validation and the build/registry-digest adapter were previously verified; see the [container verification record](../../docs/verification.md) and [hosted acceptance record](../../docs/hosted-acceptance.md). Those results remain valid. In the 20 October review, a separate `wrangler dev` test with Wrangler 4.151.3 reached the local listener but failed when starting its network sidecar with `crun: cannot set memory swappiness with cgroupv2`, even with the API socket configured. That run did not establish local `/health` readiness. The cause and remedy remain unverified; this single result does not establish a general Podman limitation or a requirement to switch to Docker.
+With Wrangler 4.151.3, workerd sends `HostConfig.MemorySwappiness: 0` when creating both its network sidecar and application container. Podman 5.8.2 with crun 1.25.1 rejects that setting on cgroup v2. The local API adapter omits only that zero-valued field, only on cgroup v2, and only for this project's named local workerd containers and expected images. It preserves other resource settings and explicit nonzero swappiness values. It neither changes the Podman VM nor patches installed dependencies. The socket is private to the current user and is removed when Wrangler exits. Production and preview deployment commands do not use this adapter.
+
+The earlier Podman build/registry-digest fix remains in use; see the [container verification record](../../docs/verification.md) and [hosted acceptance record](../../docs/hosted-acceptance.md). See [local Podman acceptance](../../docs/podman-local-acceptance.md) for the reproduced failure and successful full-path validation.
 
 Check readiness at `http://localhost:8787/health` and connect an MCP client to `http://localhost:8787/mcp`. To require a bearer token locally, create the ignored file `deploy/cloudflare/.dev.vars` containing `MCP_TOKEN=...`; never commit that file.
 
@@ -33,11 +36,13 @@ From the repository root:
 npm run worker:test
 npm run worker:check
 npm run worker:check:production
+# In a second terminal while worker:dev:podman is running:
+npm run worker:test:local
 ```
 
-`worker:test` builds the root TypeScript package, runs the adapter and Podman-wrapper unit tests, and runs the real Node/QuickJS cancellation integration test. `worker:check` additionally performs a local-config deployment dry run and requires a container engine (the Podman wrapper was verified for this build). `worker:check:production` validates the production config and pinned image without deploying.
+`worker:test` builds the root TypeScript package, runs the adapter and Podman-wrapper unit tests, and runs the real Node/QuickJS cancellation integration test. `worker:check` additionally performs a local-config deployment dry run and requires a container engine (the Podman wrapper was verified for this build). `worker:check:production` validates the production config and pinned image without deploying. `worker:test:local` runs the acceptance suite against the fixed `http://localhost:8787/mcp` endpoint; it includes outbound requests to the public Tamperbox API. Hosted acceptance still requires HTTPS.
 
-Review validation on 20 October 2026: root package checks passed 360 tests, coverage and packed-package smoke checks; Worker checks passed 30 unit tests and one real Node/QuickJS cancellation integration test. Local and production deployment dry runs passed with Wrangler 4.151.3. The local HTTP and inspector listeners started; the full container health check failed at network-sidecar startup as recorded above. No deployment was performed.
+Review validation on 20 October 2026: root package checks passed 360 tests, coverage and packed-package smoke checks; Worker checks passed 30 unit tests and one real Node/QuickJS cancellation integration test. Local and production deployment dry runs passed with Wrangler 4.151.3. The initial local runtime check exposed the swappiness incompatibility above. After the local API adapter fix, all 15 acceptance checks passed through Wrangler and the real Podman container, including live API egress. The four new API-adapter regression tests also passed. No deployment was performed.
 
 ## Production
 

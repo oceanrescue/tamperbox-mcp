@@ -63,7 +63,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "sync:openapi": "node scripts/sync-openapi.mjs",
-    "test:api-integration": "npm run build && node scripts/check-api-integration.mjs"
+    "test:api-integration": "npm run build && node scripts/check-api-integration.mjs",
+    "worker:dev:podman": "npm --prefix deploy/cloudflare run dev:podman",
+    "worker:test:local": "npm run build && node scripts/check-hosted.mjs --local"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.1",

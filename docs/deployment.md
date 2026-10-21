@@ -9,14 +9,16 @@ The root scripts expose the complete Worker workflow:
 ```sh
 npm ci
 npm --prefix deploy/cloudflare ci
-npm run worker:dev                 # http://localhost:8787
+npm run worker:dev                 # http://localhost:8787 (Docker)
+npm run worker:dev:podman          # same local Worker, with Podman compatibility
+npm run worker:test:local          # acceptance; local Worker must be running
 npm run worker:test                # unit and Node/QuickJS integration tests
 npm run worker:check               # tests plus local-config dry run
 npm run worker:check:production    # tests plus production dry run
 npm run worker:deploy:production   # explicit production deployment
 ```
 
-The local Worker config permits HTTP only for its exact loopback origin. Preview and production accept only their exact HTTPS origins. A container engine is required to build the Cloudflare Container. Podman builds use the verified compatibility adapter; see the deployment package README for setup, the separate local Wrangler runtime check, and local secret handling.
+The local Worker config permits HTTP only for its exact loopback origin. Preview and production accept only their exact HTTPS origins. A container engine is required to build the Cloudflare Container. Podman builds use the verified compatibility adapter; see the deployment package README for setup, the verified local Wrangler runtime adapter, and local secret handling.
 
 ```sh
 npm ci

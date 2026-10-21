@@ -1,10 +1,13 @@
-/** Opt-in acceptance of the new HTTPS Code Mode deployment, not provider acceptance. */
+/** Opt-in acceptance through HTTPS deployment or the exact local Wrangler endpoint. */
 import assert from 'node:assert/strict';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { validateRequest } from '../dist/spec.js';
 
 const expectedVersion = '0.3.0';
+const local = process.argv.length === 3 && process.argv[2] === '--local';
+if (process.argv.length > 2 && !local)
+  throw new Error('Only --local is supported.');
 const startedAt = new Date().toISOString();
 const checks = [];
 let endpoint, client, transport;
@@ -136,7 +139,9 @@ async function apiRequest(request) {
 }
 try {
   const configured = await check('configuration', async () => {
-    const value = process.env.TAMPERBOX_MCP_URL;
+    const value = local
+      ? 'http://localhost:8787/mcp'
+      : process.env.TAMPERBOX_MCP_URL;
     if (!value)
       throw new CheckFailure(
         'Set TAMPERBOX_MCP_URL to the new HTTPS Code Mode endpoint.',
@@ -149,7 +154,7 @@ try {
       );
     }
     if (
-      endpoint.protocol !== 'https:' ||
+      (!local && endpoint.protocol !== 'https:') ||
       endpoint.username ||
       endpoint.password ||
       endpoint.search ||
@@ -425,12 +430,14 @@ try {
     JSON.stringify(
       {
         passed,
+        target: local ? 'local-worker' : 'hosted',
         expectedVersion,
         startedAt,
         finishedAt: new Date().toISOString(),
         checks,
-        scope:
-          'Hosted MCP transport, sandbox and selected live API operations only.',
+        scope: local
+          ? 'Local Wrangler/Podman MCP transport, sandbox and selected live API operations only.'
+          : 'Hosted MCP transport, sandbox and selected live API operations only.',
         providerModelAcceptance: 'not run',
         allOperationAvailabilityEstablished: false,
       },

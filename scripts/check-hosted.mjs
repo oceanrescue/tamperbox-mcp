@@ -2,9 +2,15 @@
 import assert from 'node:assert/strict';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-import { validateRequest } from '../dist/spec.js';
+import { operations, validateRequest } from '../dist/spec.js';
 
 const expectedVersion = '0.3.0';
+const expectedCatalog = {
+  operations: operations.length,
+  websiteTools: new Set(
+    operations.flatMap((operation) => operation.websiteToolIds),
+  ).size,
+};
 const startedAt = new Date().toISOString();
 const checks = [];
 let endpoint, client, transport;
@@ -235,7 +241,7 @@ try {
           'return {operations:operations.length,websiteTools:new Set(operations.flatMap(o=>o.websiteToolIds)).size};',
         );
         assert.deepEqual(result, {
-          result: { operations: 114, websiteTools: 53 },
+          result: expectedCatalog,
           apiCalls: 0,
         });
         return result;

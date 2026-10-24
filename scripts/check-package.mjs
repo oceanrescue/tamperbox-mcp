@@ -51,7 +51,7 @@ try {
       `Private or development artifact packed: ${path}`,
     );
   assert.ok(
-    // The full 114-operation contract is bundled for offline discovery.
+    // The full 115-operation contract is bundled for offline discovery.
     // Measured 0.3.0 candidate: 1.17 MB unpacked, 120 kB compressed.
     pack.unpackedSize < 1.5 * 1024 * 1024 && pack.size < 160 * 1024,
     'Package exceeds the expected size budget.',
@@ -93,7 +93,7 @@ try {
       },
     });
     assert.deepEqual(discovery.structuredContent, {
-      result: { operations: 114, websiteTools: 53 },
+      result: { operations: 115, websiteTools: 55 },
       apiCalls: 0,
     });
     const result = await client.callTool({

@@ -58,6 +58,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "sync:openapi": "node scripts/sync-openapi.mjs",
+    "sync:upstream": "node scripts/sync-upstream.mjs",
     "test:api-integration": "npm run build && node scripts/check-api-integration.mjs"
   },
   "dependencies": {

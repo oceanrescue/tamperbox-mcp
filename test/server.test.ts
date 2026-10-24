@@ -128,7 +128,7 @@ describe('MCP with official SDK client', () => {
           (await client.readResource({ uri: 'tamperbox://catalog' }))
             .contents[0]?.text as string,
         ).operations,
-      ).toHaveLength(114);
+      ).toHaveLength(115);
     } finally {
       await close();
     }

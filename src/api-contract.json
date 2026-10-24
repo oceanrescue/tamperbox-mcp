@@ -63,10 +63,7 @@
           "output": {
             "type": "object",
             "properties": {
-              "mediaType": {
-                "type": "string",
-                "enum": ["application/json"]
-              },
+              "mediaType": { "type": "string", "enum": ["application/json"] },
               "value": {
                 "type": "string",
                 "maxLength": 2097152,
@@ -101,41 +98,22 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "tool": {
-                  "type": "string"
-                }
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
               },
               "required": ["id", "tool"],
               "additionalProperties": false
             }
           },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
           "provenance": {
             "type": "object",
             "properties": {
-              "provider": {
-                "type": "string"
-              },
-              "engineVersion": {
-                "type": "string"
-              },
-              "tool": {
-                "type": "string"
-              },
-              "attribution": {
-                "type": "string"
-              },
-              "editorUrl": {
-                "type": "string"
-              }
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
             },
             "required": [
               "provider",
@@ -229,10 +207,7 @@
           "output": {
             "type": "object",
             "properties": {
-              "mediaType": {
-                "type": "string",
-                "enum": ["application/json"]
-              },
+              "mediaType": { "type": "string", "enum": ["application/json"] },
               "value": {
                 "type": "string",
                 "maxLength": 2097152,
@@ -267,41 +242,22 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "tool": {
-                  "type": "string"
-                }
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
               },
               "required": ["id", "tool"],
               "additionalProperties": false
             }
           },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
           "provenance": {
             "type": "object",
             "properties": {
-              "provider": {
-                "type": "string"
-              },
-              "engineVersion": {
-                "type": "string"
-              },
-              "tool": {
-                "type": "string"
-              },
-              "attribution": {
-                "type": "string"
-              },
-              "editorUrl": {
-                "type": "string"
-              }
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
             },
             "required": [
               "provider",
@@ -320,7 +276,7 @@
     {
       "id": "json_to_yaml",
       "title": "Convert JSON to YAML",
-      "page": "/pipeline",
+      "page": "/json-to-yaml",
       "accepts": ["application/json"],
       "produces": ["application/yaml"],
       "description": "Convert JSON to YAML without network access. Rejects unsafe numeric precision and duplicate keys. Does not execute embedded text.",
@@ -395,10 +351,7 @@
           "output": {
             "type": "object",
             "properties": {
-              "mediaType": {
-                "type": "string",
-                "enum": ["application/yaml"]
-              },
+              "mediaType": { "type": "string", "enum": ["application/yaml"] },
               "value": {
                 "type": "string",
                 "maxLength": 2097152,
@@ -433,41 +386,166 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "tool": {
-                  "type": "string"
-                }
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
               },
               "required": ["id", "tool"],
               "additionalProperties": false
             }
           },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
           "provenance": {
             "type": "object",
             "properties": {
-              "provider": {
-                "type": "string"
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
+            },
+            "required": [
+              "provider",
+              "engineVersion",
+              "tool",
+              "attribution",
+              "editorUrl"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": ["output", "warnings", "provenance"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "yaml_to_json",
+      "title": "Convert YAML to JSON",
+      "page": "/yaml-to-json",
+      "accepts": ["application/yaml"],
+      "produces": ["application/json"],
+      "description": "Convert YAML to JSON without network access. Rejects duplicate keys, alias cycles, unsupported tags and numbers that cannot be represented safely.",
+      "options": {
+        "type": "object",
+        "properties": {
+          "indent": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 8,
+            "default": 2,
+            "description": "Spaces per indentation level."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "example": {
+        "mediaType": "application/yaml",
+        "value": "example: true\n"
+      },
+      "version": "1.0.0",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "title": "Convert YAML to JSON"
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "maxLength": 100,
+                "description": "Media type of value.",
+                "enum": ["application/yaml"]
               },
-              "engineVersion": {
-                "type": "string"
-              },
-              "tool": {
-                "type": "string"
-              },
-              "attribution": {
-                "type": "string"
-              },
-              "editorUrl": {
-                "type": "string"
+              "value": {
+                "type": "string",
+                "maxLength": 1048576,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
               }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "indent": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 8,
+                "default": 2,
+                "description": "Spaces per indentation level."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": ["input"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "object",
+            "properties": {
+              "mediaType": { "type": "string", "enum": ["application/json"] },
+              "value": {
+                "type": "string",
+                "maxLength": 2097152,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "outputs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "mediaType": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "Media type of value."
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 2097152,
+                  "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                }
+              },
+              "required": ["mediaType", "value"],
+              "additionalProperties": false
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
+              },
+              "required": ["id", "tool"],
+              "additionalProperties": false
+            }
+          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
+          "provenance": {
+            "type": "object",
+            "properties": {
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
             },
             "required": [
               "provider",
@@ -502,10 +580,7 @@
         "required": [],
         "additionalProperties": false
       },
-      "example": {
-        "mediaType": "text/plain",
-        "value": "1700000000"
-      },
+      "example": { "mediaType": "text/plain", "value": "1700000000" },
       "version": "1.0.0",
       "annotations": {
         "readOnlyHint": true,
@@ -557,10 +632,7 @@
           "output": {
             "type": "object",
             "properties": {
-              "mediaType": {
-                "type": "string",
-                "enum": ["text/plain"]
-              },
+              "mediaType": { "type": "string", "enum": ["text/plain"] },
               "value": {
                 "type": "string",
                 "maxLength": 2097152,
@@ -595,41 +667,22 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "tool": {
-                  "type": "string"
-                }
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
               },
               "required": ["id", "tool"],
               "additionalProperties": false
             }
           },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
           "provenance": {
             "type": "object",
             "properties": {
-              "provider": {
-                "type": "string"
-              },
-              "engineVersion": {
-                "type": "string"
-              },
-              "tool": {
-                "type": "string"
-              },
-              "attribution": {
-                "type": "string"
-              },
-              "editorUrl": {
-                "type": "string"
-              }
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
             },
             "required": [
               "provider",
@@ -767,41 +820,22 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "tool": {
-                  "type": "string"
-                }
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
               },
               "required": ["id", "tool"],
               "additionalProperties": false
             }
           },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
           "provenance": {
             "type": "object",
             "properties": {
-              "provider": {
-                "type": "string"
-              },
-              "engineVersion": {
-                "type": "string"
-              },
-              "tool": {
-                "type": "string"
-              },
-              "attribution": {
-                "type": "string"
-              },
-              "editorUrl": {
-                "type": "string"
-              }
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
             },
             "required": [
               "provider",
@@ -821,10 +855,7 @@
   "pipelineSchema": {
     "type": "object",
     "properties": {
-      "version": {
-        "type": "integer",
-        "enum": [1]
-      },
+      "version": { "type": "integer", "enum": [1] },
       "input": {
         "type": "object",
         "properties": {
@@ -849,24 +880,20 @@
         "items": {
           "type": "object",
           "properties": {
-            "id": {
-              "type": "string",
-              "pattern": "^[a-z][a-z0-9_]{0,31}$"
-            },
+            "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,31}$" },
             "tool": {
               "type": "string",
               "enum": [
                 "jwt_decode",
                 "json_format",
                 "json_to_yaml",
+                "yaml_to_json",
                 "timestamp_to_iso",
                 "api_convert"
               ],
               "description": "Registered operation name."
             },
-            "options": {
-              "type": "object"
-            }
+            "options": { "type": "object" }
           },
           "required": ["id", "tool"],
           "additionalProperties": false
@@ -877,10 +904,7 @@
         "minItems": 1,
         "maxItems": 20,
         "uniqueItems": true,
-        "items": {
-          "type": "string",
-          "maxLength": 32
-        }
+        "items": { "type": "string", "maxLength": 32 }
       }
     },
     "required": ["version", "input", "steps"],
@@ -931,41 +955,22 @@
         "items": {
           "type": "object",
           "properties": {
-            "id": {
-              "type": "string"
-            },
-            "tool": {
-              "type": "string"
-            }
+            "id": { "type": "string" },
+            "tool": { "type": "string" }
           },
           "required": ["id", "tool"],
           "additionalProperties": false
         }
       },
-      "warnings": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
-      },
+      "warnings": { "type": "array", "items": { "type": "string" } },
       "provenance": {
         "type": "object",
         "properties": {
-          "provider": {
-            "type": "string"
-          },
-          "engineVersion": {
-            "type": "string"
-          },
-          "tool": {
-            "type": "string"
-          },
-          "attribution": {
-            "type": "string"
-          },
-          "editorUrl": {
-            "type": "string"
-          }
+          "provider": { "type": "string" },
+          "engineVersion": { "type": "string" },
+          "tool": { "type": "string" },
+          "attribution": { "type": "string" },
+          "editorUrl": { "type": "string" }
         },
         "required": [
           "provider",
@@ -988,37 +993,21 @@
         "maxLength": 256,
         "description": "Task keywords only; do not include tokens or tool inputs."
       },
-      "accepts": {
-        "type": "string",
-        "maxLength": 100
-      },
-      "produces": {
-        "type": "string",
-        "maxLength": 100
-      }
+      "accepts": { "type": "string", "maxLength": 100 },
+      "produces": { "type": "string", "maxLength": 100 }
     },
     "required": [],
     "additionalProperties": false
   },
   "recipe": {
     "id": "jwt-to-yaml",
-    "modifiedAt": "2026-10-13",
+    "modifiedAt": "2026-10-18",
     "title": "Decode a JWT and inspect it as YAML",
     "description": "Decode only; the YAML is not evidence of signature validity or trust.",
     "version": 1,
     "steps": [
-      {
-        "id": "decode",
-        "tool": "jwt_decode",
-        "options": {}
-      },
-      {
-        "id": "yaml",
-        "tool": "json_to_yaml",
-        "options": {
-          "indent": 2
-        }
-      }
+      { "id": "decode", "tool": "jwt_decode", "options": {} },
+      { "id": "yaml", "tool": "json_to_yaml", "options": { "indent": 2 } }
     ],
     "return": ["yaml"]
   }

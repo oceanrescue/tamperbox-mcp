@@ -5,1276 +5,50 @@
     "version": "1.0.0",
     "description": "Remote calls send inputs to our server. Artifact transforms run without target network access; diagnostic operations inspect public DNS, websites, registries or bounded network probes. Use browser-local tools for sensitive local inputs. Outputs are observations, not guarantees of trust, security or reachability."
   },
-  "servers": [
-    {
-      "url": "https://api.tamperbox.dev"
+  "servers": [{ "url": "https://api.tamperbox.dev" }],
+  "components": {
+    "responses": {
+      "Problem": {
+        "description": "Structured failure. No successful result should be inferred from missing evidence.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string" },
+                "title": { "type": "string" },
+                "status": { "type": "integer", "minimum": 400, "maximum": 599 },
+                "code": { "type": "string" },
+                "detail": { "type": "string" },
+                "hint": { "type": "string" },
+                "step": { "type": "string" },
+                "path": { "type": "string" }
+              },
+              "required": ["type", "title", "status", "code", "detail", "hint"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "headers": {
+          "Retry-After": {
+            "description": "Retry delay in seconds when supplied for a rate or temporary service limit.",
+            "schema": { "type": "string" }
+          }
+        }
+      }
     }
-  ],
+  },
   "paths": {
-    "/v1/find": {
-      "get": {
-        "operationId": "tamperbox_find",
-        "summary": "Find API operations",
-        "description": "Find available operations by task keywords or artifact media type. Send task descriptions rather than private inputs. Includes input and output contracts for planning calls.",
-        "tags": [
-          "agent-workflows"
-        ],
-        "x-tamperbox-website-tool-ids": [],
-        "parameters": [
-          {
-            "name": "query",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 256,
-              "description": "Task keywords only; do not include tokens or tool inputs."
-            },
-            "example": "dns"
-          },
-          {
-            "name": "accepts",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 100
-            }
-          },
-          {
-            "name": "produces",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 100
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "tools": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "additionalProperties": true
-                      }
-                    },
-                    "provenance": {
-                      "type": "object",
-                      "properties": {
-                        "provider": {
-                          "type": "string"
-                        },
-                        "engineVersion": {
-                          "type": "string"
-                        },
-                        "tool": {
-                          "type": "string"
-                        },
-                        "attribution": {
-                          "type": "string"
-                        },
-                        "editorUrl": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "provider",
-                        "engineVersion",
-                        "tool",
-                        "attribution",
-                        "editorUrl"
-                      ],
-                      "additionalProperties": false
-                    }
-                  },
-                  "required": [
-                    "tools",
-                    "provenance"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "405": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "408": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "413": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "415": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "502": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "504": {
-            "$ref": "#/components/responses/Problem"
-          }
-        }
-      }
-    },
-    "/v1/pipeline": {
-      "post": {
-        "operationId": "tamperbox_pipeline",
-        "summary": "Run a pure transform pipeline",
-        "description": "Run up to twenty pure artifact transforms in order. Network diagnostic operations are not pipeline steps; combine those using agent code and explicit request calls.",
-        "tags": [
-          "agent-workflows"
-        ],
-        "x-tamperbox-website-tool-ids": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "version": {
-                    "type": "integer",
-                    "enum": [
-                      1
-                    ]
-                  },
-                  "input": {
-                    "type": "object",
-                    "properties": {
-                      "mediaType": {
-                        "type": "string",
-                        "maxLength": 100,
-                        "description": "Media type of value."
-                      },
-                      "value": {
-                        "type": "string",
-                        "maxLength": 1048576,
-                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                      }
-                    },
-                    "required": [
-                      "mediaType",
-                      "value"
-                    ],
-                    "additionalProperties": false
-                  },
-                  "steps": {
-                    "type": "array",
-                    "minItems": 1,
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "pattern": "^[a-z][a-z0-9_]{0,31}$"
-                        },
-                        "tool": {
-                          "type": "string",
-                          "enum": [
-                            "jwt_decode",
-                            "json_format",
-                            "json_to_yaml",
-                            "timestamp_to_iso",
-                            "text_inspect",
-                            "naughty_strings",
-                            "string_generate",
-                            "mojibake_fix",
-                            "har_sanitize",
-                            "api_convert"
-                          ],
-                          "description": "Registered operation name."
-                        },
-                        "options": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "tool"
-                      ],
-                      "additionalProperties": false
-                    }
-                  },
-                  "return": {
-                    "type": "array",
-                    "minItems": 1,
-                    "maxItems": 20,
-                    "uniqueItems": true,
-                    "items": {
-                      "type": "string",
-                      "maxLength": 32
-                    }
-                  }
-                },
-                "required": [
-                  "version",
-                  "input",
-                  "steps"
-                ],
-                "additionalProperties": false
-              },
-              "example": {
-                "version": 1,
-                "input": {
-                  "mediaType": "application/json",
-                  "value": "{\"example\":true}"
-                },
-                "steps": [
-                  {
-                    "id": "yaml",
-                    "tool": "json_to_yaml"
-                  }
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "output": {
-                      "type": "object",
-                      "properties": {
-                        "mediaType": {
-                          "type": "string",
-                          "maxLength": 100,
-                          "description": "Media type of value."
-                        },
-                        "value": {
-                          "type": "string",
-                          "maxLength": 2097152,
-                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                        }
-                      },
-                      "required": [
-                        "mediaType",
-                        "value"
-                      ],
-                      "additionalProperties": false
-                    },
-                    "outputs": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "object",
-                        "properties": {
-                          "mediaType": {
-                            "type": "string",
-                            "maxLength": 100,
-                            "description": "Media type of value."
-                          },
-                          "value": {
-                            "type": "string",
-                            "maxLength": 2097152,
-                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                          }
-                        },
-                        "required": [
-                          "mediaType",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      }
-                    },
-                    "steps": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "tool": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "id",
-                          "tool"
-                        ],
-                        "additionalProperties": false
-                      }
-                    },
-                    "warnings": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "provenance": {
-                      "type": "object",
-                      "properties": {
-                        "provider": {
-                          "type": "string"
-                        },
-                        "engineVersion": {
-                          "type": "string"
-                        },
-                        "tool": {
-                          "type": "string"
-                        },
-                        "attribution": {
-                          "type": "string"
-                        },
-                        "editorUrl": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "provider",
-                        "engineVersion",
-                        "tool",
-                        "attribution",
-                        "editorUrl"
-                      ],
-                      "additionalProperties": false
-                    }
-                  },
-                  "required": [
-                    "outputs",
-                    "steps",
-                    "warnings",
-                    "provenance"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "405": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "408": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "413": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "415": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "502": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "504": {
-            "$ref": "#/components/responses/Problem"
-          }
-        }
-      }
-    },
-    "/v1/recipes/{id}": {
-      "get": {
-        "operationId": "get_recipe",
-        "summary": "Fetch a public recipe",
-        "description": "Fetch the published JWT-to-YAML recipe definition. Retrieval does not run the recipe or verify a JWT signature or trust.",
-        "tags": [
-          "agent-workflows"
-        ],
-        "x-tamperbox-website-tool-ids": [],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "jwt-to-yaml"
-              ],
-              "description": "Published recipe identifier."
-            },
-            "example": "jwt-to-yaml"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "title": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    },
-                    "version": {
-                      "type": "integer"
-                    },
-                    "steps": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "additionalProperties": true
-                      }
-                    },
-                    "return": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "modifiedAt": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "version",
-                    "steps"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "405": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "408": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "413": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "415": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "502": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "504": {
-            "$ref": "#/components/responses/Problem"
-          }
-        }
-      }
-    },
-    "/v1/tools/api_convert": {
-      "post": {
-        "operationId": "api_convert",
-        "summary": "Convert API document",
-        "description": "Convert supported Postman, OpenAPI or POSIX cURL text. Does not execute requests or fetch references. Conversion can lose unsupported features; secret replacement is incomplete and output needs review.",
-        "tags": [
-          "postman-converter"
-        ],
-        "x-tamperbox-website-tool-ids": [
-          "postman-converter"
-        ],
-        "x-tamperbox-media-types": {
-          "accepts": [
-            "application/json",
-            "application/yaml",
-            "text/plain"
-          ],
-          "produces": [
-            "application/json",
-            "application/yaml",
-            "text/plain"
-          ]
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "input": {
-                    "type": "object",
-                    "properties": {
-                      "mediaType": {
-                        "type": "string",
-                        "maxLength": 100,
-                        "description": "Media type of value.",
-                        "enum": [
-                          "application/json",
-                          "application/yaml",
-                          "text/plain"
-                        ]
-                      },
-                      "value": {
-                        "type": "string",
-                        "maxLength": 1048576,
-                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                      }
-                    },
-                    "required": [
-                      "mediaType",
-                      "value"
-                    ],
-                    "additionalProperties": false
-                  },
-                  "options": {
-                    "type": "object",
-                    "properties": {
-                      "target": {
-                        "type": "string",
-                        "enum": [
-                          "postman",
-                          "openapi-json",
-                          "openapi-yaml",
-                          "curl"
-                        ],
-                        "description": "Output format."
-                      },
-                      "redactSecrets": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Replace recognized credentials; not comprehensive secret detection."
-                      }
-                    },
-                    "required": [
-                      "target"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "required": [
-                  "input",
-                  "options"
-                ],
-                "additionalProperties": false
-              },
-              "example": {
-                "input": {
-                  "mediaType": "text/plain",
-                  "value": "curl https://example.com"
-                },
-                "options": {
-                  "target": "openapi-json"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "output": {
-                      "type": "object",
-                      "properties": {
-                        "mediaType": {
-                          "type": "string",
-                          "enum": [
-                            "application/json",
-                            "application/yaml",
-                            "text/plain"
-                          ]
-                        },
-                        "value": {
-                          "type": "string",
-                          "maxLength": 2097152,
-                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                        }
-                      },
-                      "required": [
-                        "mediaType",
-                        "value"
-                      ],
-                      "additionalProperties": false
-                    },
-                    "outputs": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "object",
-                        "properties": {
-                          "mediaType": {
-                            "type": "string",
-                            "maxLength": 100,
-                            "description": "Media type of value."
-                          },
-                          "value": {
-                            "type": "string",
-                            "maxLength": 2097152,
-                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                          }
-                        },
-                        "required": [
-                          "mediaType",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      }
-                    },
-                    "steps": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "tool": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "id",
-                          "tool"
-                        ],
-                        "additionalProperties": false
-                      }
-                    },
-                    "warnings": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "provenance": {
-                      "type": "object",
-                      "properties": {
-                        "provider": {
-                          "type": "string"
-                        },
-                        "engineVersion": {
-                          "type": "string"
-                        },
-                        "tool": {
-                          "type": "string"
-                        },
-                        "attribution": {
-                          "type": "string"
-                        },
-                        "editorUrl": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "provider",
-                        "engineVersion",
-                        "tool",
-                        "attribution",
-                        "editorUrl"
-                      ],
-                      "additionalProperties": false
-                    }
-                  },
-                  "required": [
-                    "output",
-                    "warnings",
-                    "provenance"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "405": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "408": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "413": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "415": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "502": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "504": {
-            "$ref": "#/components/responses/Problem"
-          }
-        }
-      }
-    },
-    "/v1/tools/json_format": {
-      "post": {
-        "operationId": "json_format",
-        "summary": "Format JSON",
-        "description": "Format JSON with bounded indentation. Rejects duplicate keys and numbers that cannot be represented safely. Does not validate an application schema.",
-        "tags": [
-          "agent-workflows"
-        ],
-        "x-tamperbox-website-tool-ids": [],
-        "x-tamperbox-media-types": {
-          "accepts": [
-            "application/json"
-          ],
-          "produces": [
-            "application/json"
-          ]
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "input": {
-                    "type": "object",
-                    "properties": {
-                      "mediaType": {
-                        "type": "string",
-                        "maxLength": 100,
-                        "description": "Media type of value.",
-                        "enum": [
-                          "application/json"
-                        ]
-                      },
-                      "value": {
-                        "type": "string",
-                        "maxLength": 1048576,
-                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                      }
-                    },
-                    "required": [
-                      "mediaType",
-                      "value"
-                    ],
-                    "additionalProperties": false
-                  },
-                  "options": {
-                    "type": "object",
-                    "properties": {
-                      "indent": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 8,
-                        "default": 2,
-                        "description": "Spaces per indentation level."
-                      }
-                    },
-                    "required": [],
-                    "additionalProperties": false
-                  }
-                },
-                "required": [
-                  "input"
-                ],
-                "additionalProperties": false
-              },
-              "example": {
-                "input": {
-                  "mediaType": "application/json",
-                  "value": "{\"example\":true}"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "output": {
-                      "type": "object",
-                      "properties": {
-                        "mediaType": {
-                          "type": "string",
-                          "enum": [
-                            "application/json"
-                          ]
-                        },
-                        "value": {
-                          "type": "string",
-                          "maxLength": 2097152,
-                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                        }
-                      },
-                      "required": [
-                        "mediaType",
-                        "value"
-                      ],
-                      "additionalProperties": false
-                    },
-                    "outputs": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "object",
-                        "properties": {
-                          "mediaType": {
-                            "type": "string",
-                            "maxLength": 100,
-                            "description": "Media type of value."
-                          },
-                          "value": {
-                            "type": "string",
-                            "maxLength": 2097152,
-                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                          }
-                        },
-                        "required": [
-                          "mediaType",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      }
-                    },
-                    "steps": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "tool": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "id",
-                          "tool"
-                        ],
-                        "additionalProperties": false
-                      }
-                    },
-                    "warnings": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "provenance": {
-                      "type": "object",
-                      "properties": {
-                        "provider": {
-                          "type": "string"
-                        },
-                        "engineVersion": {
-                          "type": "string"
-                        },
-                        "tool": {
-                          "type": "string"
-                        },
-                        "attribution": {
-                          "type": "string"
-                        },
-                        "editorUrl": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "provider",
-                        "engineVersion",
-                        "tool",
-                        "attribution",
-                        "editorUrl"
-                      ],
-                      "additionalProperties": false
-                    }
-                  },
-                  "required": [
-                    "output",
-                    "warnings",
-                    "provenance"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "405": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "408": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "413": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "415": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "502": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "504": {
-            "$ref": "#/components/responses/Problem"
-          }
-        }
-      }
-    },
-    "/v1/tools/json_to_yaml": {
-      "post": {
-        "operationId": "json_to_yaml",
-        "summary": "Convert JSON to YAML",
-        "description": "Convert JSON to YAML without network access. Rejects unsafe numeric precision and duplicate keys. Does not execute embedded text.",
-        "tags": [
-          "agent-workflows"
-        ],
-        "x-tamperbox-website-tool-ids": [],
-        "x-tamperbox-media-types": {
-          "accepts": [
-            "application/json"
-          ],
-          "produces": [
-            "application/yaml"
-          ]
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "input": {
-                    "type": "object",
-                    "properties": {
-                      "mediaType": {
-                        "type": "string",
-                        "maxLength": 100,
-                        "description": "Media type of value.",
-                        "enum": [
-                          "application/json"
-                        ]
-                      },
-                      "value": {
-                        "type": "string",
-                        "maxLength": 1048576,
-                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                      }
-                    },
-                    "required": [
-                      "mediaType",
-                      "value"
-                    ],
-                    "additionalProperties": false
-                  },
-                  "options": {
-                    "type": "object",
-                    "properties": {
-                      "indent": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 8,
-                        "default": 2,
-                        "description": "Spaces per indentation level."
-                      }
-                    },
-                    "required": [],
-                    "additionalProperties": false
-                  }
-                },
-                "required": [
-                  "input"
-                ],
-                "additionalProperties": false
-              },
-              "example": {
-                "input": {
-                  "mediaType": "application/json",
-                  "value": "{\"example\":true}"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "output": {
-                      "type": "object",
-                      "properties": {
-                        "mediaType": {
-                          "type": "string",
-                          "enum": [
-                            "application/yaml"
-                          ]
-                        },
-                        "value": {
-                          "type": "string",
-                          "maxLength": 2097152,
-                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                        }
-                      },
-                      "required": [
-                        "mediaType",
-                        "value"
-                      ],
-                      "additionalProperties": false
-                    },
-                    "outputs": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "object",
-                        "properties": {
-                          "mediaType": {
-                            "type": "string",
-                            "maxLength": 100,
-                            "description": "Media type of value."
-                          },
-                          "value": {
-                            "type": "string",
-                            "maxLength": 2097152,
-                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                          }
-                        },
-                        "required": [
-                          "mediaType",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      }
-                    },
-                    "steps": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "tool": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "id",
-                          "tool"
-                        ],
-                        "additionalProperties": false
-                      }
-                    },
-                    "warnings": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "provenance": {
-                      "type": "object",
-                      "properties": {
-                        "provider": {
-                          "type": "string"
-                        },
-                        "engineVersion": {
-                          "type": "string"
-                        },
-                        "tool": {
-                          "type": "string"
-                        },
-                        "attribution": {
-                          "type": "string"
-                        },
-                        "editorUrl": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "provider",
-                        "engineVersion",
-                        "tool",
-                        "attribution",
-                        "editorUrl"
-                      ],
-                      "additionalProperties": false
-                    }
-                  },
-                  "required": [
-                    "output",
-                    "warnings",
-                    "provenance"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "405": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "408": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "413": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "415": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "502": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "504": {
-            "$ref": "#/components/responses/Problem"
-          }
-        }
-      }
-    },
     "/v1/tools/jwt_decode": {
       "post": {
         "operationId": "jwt_decode",
         "summary": "Decode JWT",
         "description": "Decode a three-part JWT into header and payload. Does not verify its signature, trust, expiration or application policy. No keys are accepted.",
-        "tags": [
-          "jwt"
-        ],
-        "x-tamperbox-website-tool-ids": [
-          "jwt"
-        ],
+        "tags": ["jwt"],
+        "x-tamperbox-website-tool-ids": ["jwt"],
         "x-tamperbox-media-types": {
-          "accepts": [
-            "application/jwt"
-          ],
-          "produces": [
-            "application/json"
-          ]
+          "accepts": ["application/jwt"],
+          "produces": ["application/json"]
         },
         "requestBody": {
           "required": true,
@@ -1290,9 +64,7 @@
                         "type": "string",
                         "maxLength": 100,
                         "description": "Media type of value.",
-                        "enum": [
-                          "application/jwt"
-                        ]
+                        "enum": ["application/jwt"]
                       },
                       "value": {
                         "type": "string",
@@ -1300,10 +72,7 @@
                         "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                       }
                     },
-                    "required": [
-                      "mediaType",
-                      "value"
-                    ],
+                    "required": ["mediaType", "value"],
                     "additionalProperties": false
                   },
                   "options": {
@@ -1313,9 +82,7 @@
                     "additionalProperties": false
                   }
                 },
-                "required": [
-                  "input"
-                ],
+                "required": ["input"],
                 "additionalProperties": false
               },
               "example": {
@@ -1340,9 +107,7 @@
                       "properties": {
                         "mediaType": {
                           "type": "string",
-                          "enum": [
-                            "application/json"
-                          ]
+                          "enum": ["application/json"]
                         },
                         "value": {
                           "type": "string",
@@ -1350,10 +115,7 @@
                           "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                         }
                       },
-                      "required": [
-                        "mediaType",
-                        "value"
-                      ],
+                      "required": ["mediaType", "value"],
                       "additionalProperties": false
                     },
                     "outputs": {
@@ -1372,10 +134,7 @@
                             "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                           }
                         },
-                        "required": [
-                          "mediaType",
-                          "value"
-                        ],
+                        "required": ["mediaType", "value"],
                         "additionalProperties": false
                       }
                     },
@@ -1384,44 +143,25 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "tool": {
-                            "type": "string"
-                          }
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
                         },
-                        "required": [
-                          "id",
-                          "tool"
-                        ],
+                        "required": ["id", "tool"],
                         "additionalProperties": false
                       }
                     },
                     "warnings": {
                       "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
+                      "items": { "type": "string" }
                     },
                     "provenance": {
                       "type": "object",
                       "properties": {
-                        "provider": {
-                          "type": "string"
-                        },
-                        "engineVersion": {
-                          "type": "string"
-                        },
-                        "tool": {
-                          "type": "string"
-                        },
-                        "attribution": {
-                          "type": "string"
-                        },
-                        "editorUrl": {
-                          "type": "string"
-                        }
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
                       },
                       "required": [
                         "provider",
@@ -1433,76 +173,38 @@
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "output",
-                    "warnings",
-                    "provenance"
-                  ],
+                  "required": ["output", "warnings", "provenance"],
                   "additionalProperties": false
                 }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "405": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "408": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "413": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "415": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "502": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "504": {
-            "$ref": "#/components/responses/Problem"
-          }
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
         }
       }
     },
-    "/v1/tools/mojibake_fix": {
+    "/v1/tools/json_format": {
       "post": {
-        "operationId": "mojibake_fix",
-        "summary": "Repair garbled UTF-8 text",
-        "description": "Repair text that was UTF-8 read as Windows-1252 or Latin-1, up to three times over. Text that was not damaged is returned unchanged. Replacement characters (U+FFFD) mark data already lost and are not repaired; other encodings are not detected.",
-        "tags": [
-          "mojibake-fixer"
-        ],
-        "x-tamperbox-website-tool-ids": [
-          "mojibake-fixer"
-        ],
+        "operationId": "json_format",
+        "summary": "Format JSON",
+        "description": "Format JSON with bounded indentation. Rejects duplicate keys and numbers that cannot be represented safely. Does not validate an application schema.",
+        "tags": ["agent-workflows"],
+        "x-tamperbox-website-tool-ids": [],
         "x-tamperbox-media-types": {
-          "accepts": [
-            "text/plain"
-          ],
-          "produces": [
-            "text/plain"
-          ]
+          "accepts": ["application/json"],
+          "produces": ["application/json"]
         },
         "requestBody": {
           "required": true,
@@ -1518,9 +220,7 @@
                         "type": "string",
                         "maxLength": 100,
                         "description": "Media type of value.",
-                        "enum": [
-                          "text/plain"
-                        ]
+                        "enum": ["application/json"]
                       },
                       "value": {
                         "type": "string",
@@ -1528,28 +228,31 @@
                         "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                       }
                     },
-                    "required": [
-                      "mediaType",
-                      "value"
-                    ],
+                    "required": ["mediaType", "value"],
                     "additionalProperties": false
                   },
                   "options": {
                     "type": "object",
-                    "properties": {},
+                    "properties": {
+                      "indent": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 8,
+                        "default": 2,
+                        "description": "Spaces per indentation level."
+                      }
+                    },
                     "required": [],
                     "additionalProperties": false
                   }
                 },
-                "required": [
-                  "input"
-                ],
+                "required": ["input"],
                 "additionalProperties": false
               },
               "example": {
                 "input": {
-                  "mediaType": "text/plain",
-                  "value": "cafÃ©"
+                  "mediaType": "application/json",
+                  "value": "{\"example\":true}"
                 }
               }
             }
@@ -1568,9 +271,7 @@
                       "properties": {
                         "mediaType": {
                           "type": "string",
-                          "enum": [
-                            "text/plain"
-                          ]
+                          "enum": ["application/json"]
                         },
                         "value": {
                           "type": "string",
@@ -1578,10 +279,7 @@
                           "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                         }
                       },
-                      "required": [
-                        "mediaType",
-                        "value"
-                      ],
+                      "required": ["mediaType", "value"],
                       "additionalProperties": false
                     },
                     "outputs": {
@@ -1600,10 +298,7 @@
                             "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                           }
                         },
-                        "required": [
-                          "mediaType",
-                          "value"
-                        ],
+                        "required": ["mediaType", "value"],
                         "additionalProperties": false
                       }
                     },
@@ -1612,44 +307,25 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "tool": {
-                            "type": "string"
-                          }
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
                         },
-                        "required": [
-                          "id",
-                          "tool"
-                        ],
+                        "required": ["id", "tool"],
                         "additionalProperties": false
                       }
                     },
                     "warnings": {
                       "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
+                      "items": { "type": "string" }
                     },
                     "provenance": {
                       "type": "object",
                       "properties": {
-                        "provider": {
-                          "type": "string"
-                        },
-                        "engineVersion": {
-                          "type": "string"
-                        },
-                        "tool": {
-                          "type": "string"
-                        },
-                        "attribution": {
-                          "type": "string"
-                        },
-                        "editorUrl": {
-                          "type": "string"
-                        }
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
                       },
                       "required": [
                         "provider",
@@ -1661,76 +337,38 @@
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "output",
-                    "warnings",
-                    "provenance"
-                  ],
+                  "required": ["output", "warnings", "provenance"],
                   "additionalProperties": false
                 }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "405": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "408": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "413": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "415": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "502": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "504": {
-            "$ref": "#/components/responses/Problem"
-          }
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
         }
       }
     },
-    "/v1/tools/naughty_strings": {
+    "/v1/tools/json_to_yaml": {
       "post": {
-        "operationId": "naughty_strings",
-        "summary": "List hostile test strings",
-        "description": "Return hostile test strings matching a search (the input text; empty for all), each with what it tests. Active payloads (injection, spreadsheet formulas, path traversal) are excluded unless requested; use them only against systems you may test.",
-        "tags": [
-          "naughty-strings"
-        ],
-        "x-tamperbox-website-tool-ids": [
-          "naughty-strings"
-        ],
+        "operationId": "json_to_yaml",
+        "summary": "Convert JSON to YAML",
+        "description": "Convert JSON to YAML without network access. Rejects unsafe numeric precision and duplicate keys. Does not execute embedded text.",
+        "tags": ["json-to-yaml"],
+        "x-tamperbox-website-tool-ids": ["json-to-yaml"],
         "x-tamperbox-media-types": {
-          "accepts": [
-            "text/plain"
-          ],
-          "produces": [
-            "application/json"
-          ]
+          "accepts": ["application/json"],
+          "produces": ["application/yaml"]
         },
         "requestBody": {
           "required": true,
@@ -1746,9 +384,7 @@
                         "type": "string",
                         "maxLength": 100,
                         "description": "Media type of value.",
-                        "enum": [
-                          "text/plain"
-                        ]
+                        "enum": ["application/json"]
                       },
                       "value": {
                         "type": "string",
@@ -1756,10 +392,654 @@
                         "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                       }
                     },
-                    "required": [
-                      "mediaType",
-                      "value"
-                    ],
+                    "required": ["mediaType", "value"],
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "indent": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 8,
+                        "default": 2,
+                        "description": "Spaces per indentation level."
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+              },
+              "example": {
+                "input": {
+                  "mediaType": "application/json",
+                  "value": "{\"example\":true}"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "mediaType": {
+                          "type": "string",
+                          "enum": ["application/yaml"]
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 2097152,
+                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                        }
+                      },
+                      "required": ["mediaType", "value"],
+                      "additionalProperties": false
+                    },
+                    "outputs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "mediaType": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Media type of value."
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 2097152,
+                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                          }
+                        },
+                        "required": ["mediaType", "value"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
+                        },
+                        "required": ["id", "tool"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
+                      },
+                      "required": [
+                        "provider",
+                        "engineVersion",
+                        "tool",
+                        "attribution",
+                        "editorUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["output", "warnings", "provenance"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/tools/yaml_to_json": {
+      "post": {
+        "operationId": "yaml_to_json",
+        "summary": "Convert YAML to JSON",
+        "description": "Convert YAML to JSON without network access. Rejects duplicate keys, alias cycles, unsupported tags and numbers that cannot be represented safely.",
+        "tags": ["yaml-to-json"],
+        "x-tamperbox-website-tool-ids": ["yaml-to-json"],
+        "x-tamperbox-media-types": {
+          "accepts": ["application/yaml"],
+          "produces": ["application/json"]
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "mediaType": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Media type of value.",
+                        "enum": ["application/yaml"]
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1048576,
+                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                      }
+                    },
+                    "required": ["mediaType", "value"],
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "indent": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 8,
+                        "default": 2,
+                        "description": "Spaces per indentation level."
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+              },
+              "example": {
+                "input": {
+                  "mediaType": "application/yaml",
+                  "value": "example: true\n"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "mediaType": {
+                          "type": "string",
+                          "enum": ["application/json"]
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 2097152,
+                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                        }
+                      },
+                      "required": ["mediaType", "value"],
+                      "additionalProperties": false
+                    },
+                    "outputs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "mediaType": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Media type of value."
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 2097152,
+                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                          }
+                        },
+                        "required": ["mediaType", "value"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
+                        },
+                        "required": ["id", "tool"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
+                      },
+                      "required": [
+                        "provider",
+                        "engineVersion",
+                        "tool",
+                        "attribution",
+                        "editorUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["output", "warnings", "provenance"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/tools/timestamp_to_iso": {
+      "post": {
+        "operationId": "timestamp_to_iso",
+        "summary": "Convert timestamp to ISO",
+        "description": "Convert an explicit epoch unit or UTC calendar input to ISO text, preserving fractional precision. No live clock or local timezone inference.",
+        "tags": ["unix-timestamp"],
+        "x-tamperbox-website-tool-ids": ["unix-timestamp"],
+        "x-tamperbox-media-types": {
+          "accepts": ["text/plain"],
+          "produces": ["text/plain"]
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "mediaType": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Media type of value.",
+                        "enum": ["text/plain"]
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1048576,
+                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                      }
+                    },
+                    "required": ["mediaType", "value"],
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "unit": {
+                        "type": "string",
+                        "enum": ["s", "ms", "us", "ns"],
+                        "description": "Epoch unit. Calendar strings use UTC unless an explicit offset is supplied."
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+              },
+              "example": {
+                "input": { "mediaType": "text/plain", "value": "1700000000" },
+                "options": { "unit": "s" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "mediaType": {
+                          "type": "string",
+                          "enum": ["text/plain"]
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 2097152,
+                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                        }
+                      },
+                      "required": ["mediaType", "value"],
+                      "additionalProperties": false
+                    },
+                    "outputs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "mediaType": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Media type of value."
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 2097152,
+                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                          }
+                        },
+                        "required": ["mediaType", "value"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
+                        },
+                        "required": ["id", "tool"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
+                      },
+                      "required": [
+                        "provider",
+                        "engineVersion",
+                        "tool",
+                        "attribution",
+                        "editorUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["output", "warnings", "provenance"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/tools/text_inspect": {
+      "post": {
+        "operationId": "text_inspect",
+        "summary": "Inspect text for hidden characters",
+        "description": "Report invisible, direction, control, look-alike and decomposed characters in text with code point and position, and its length in characters, UTF-16 units, UTF-8 bytes and visible characters. A finding is a character present in the text, not proof of an attack. Look-alike letters are found only inside Latin words.",
+        "tags": ["hidden-characters"],
+        "x-tamperbox-website-tool-ids": ["hidden-characters"],
+        "x-tamperbox-media-types": {
+          "accepts": ["text/plain"],
+          "produces": ["application/json"]
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "mediaType": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Media type of value.",
+                        "enum": ["text/plain"]
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1048576,
+                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                      }
+                    },
+                    "required": ["mediaType", "value"],
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "clean": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Also return the text with invisible characters removed, look-alike spaces replaced and the text in composed form (NFC)."
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+              },
+              "example": {
+                "input": { "mediaType": "text/plain", "value": "ad​min" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "mediaType": {
+                          "type": "string",
+                          "enum": ["application/json"]
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 2097152,
+                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                        }
+                      },
+                      "required": ["mediaType", "value"],
+                      "additionalProperties": false
+                    },
+                    "outputs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "mediaType": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Media type of value."
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 2097152,
+                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                          }
+                        },
+                        "required": ["mediaType", "value"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
+                        },
+                        "required": ["id", "tool"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
+                      },
+                      "required": [
+                        "provider",
+                        "engineVersion",
+                        "tool",
+                        "attribution",
+                        "editorUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["output", "warnings", "provenance"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/tools/naughty_strings": {
+      "post": {
+        "operationId": "naughty_strings",
+        "summary": "List hostile test strings",
+        "description": "Return hostile test strings matching a search (the input text; empty for all), each with what it tests. Active payloads (injection, spreadsheet formulas, path traversal) are excluded unless requested; use them only against systems you may test.",
+        "tags": ["naughty-strings"],
+        "x-tamperbox-website-tool-ids": ["naughty-strings"],
+        "x-tamperbox-media-types": {
+          "accepts": ["text/plain"],
+          "produces": ["application/json"]
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "mediaType": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Media type of value.",
+                        "enum": ["text/plain"]
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1048576,
+                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                      }
+                    },
+                    "required": ["mediaType", "value"],
                     "additionalProperties": false
                   },
                   "options": {
@@ -1792,16 +1072,11 @@
                     "additionalProperties": false
                   }
                 },
-                "required": [
-                  "input"
-                ],
+                "required": ["input"],
                 "additionalProperties": false
               },
               "example": {
-                "input": {
-                  "mediaType": "text/plain",
-                  "value": "emoji"
-                }
+                "input": { "mediaType": "text/plain", "value": "emoji" }
               }
             }
           }
@@ -1819,9 +1094,7 @@
                       "properties": {
                         "mediaType": {
                           "type": "string",
-                          "enum": [
-                            "application/json"
-                          ]
+                          "enum": ["application/json"]
                         },
                         "value": {
                           "type": "string",
@@ -1829,10 +1102,7 @@
                           "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                         }
                       },
-                      "required": [
-                        "mediaType",
-                        "value"
-                      ],
+                      "required": ["mediaType", "value"],
                       "additionalProperties": false
                     },
                     "outputs": {
@@ -1851,10 +1121,7 @@
                             "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                           }
                         },
-                        "required": [
-                          "mediaType",
-                          "value"
-                        ],
+                        "required": ["mediaType", "value"],
                         "additionalProperties": false
                       }
                     },
@@ -1863,44 +1130,25 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "tool": {
-                            "type": "string"
-                          }
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
                         },
-                        "required": [
-                          "id",
-                          "tool"
-                        ],
+                        "required": ["id", "tool"],
                         "additionalProperties": false
                       }
                     },
                     "warnings": {
                       "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
+                      "items": { "type": "string" }
                     },
                     "provenance": {
                       "type": "object",
                       "properties": {
-                        "provider": {
-                          "type": "string"
-                        },
-                        "engineVersion": {
-                          "type": "string"
-                        },
-                        "tool": {
-                          "type": "string"
-                        },
-                        "attribution": {
-                          "type": "string"
-                        },
-                        "editorUrl": {
-                          "type": "string"
-                        }
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
                       },
                       "required": [
                         "provider",
@@ -1912,55 +1160,25 @@
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "output",
-                    "warnings",
-                    "provenance"
-                  ],
+                  "required": ["output", "warnings", "provenance"],
                   "additionalProperties": false
                 }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "405": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "408": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "413": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "415": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "502": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "504": {
-            "$ref": "#/components/responses/Problem"
-          }
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
         }
       }
     },
@@ -1969,19 +1187,11 @@
         "operationId": "string_generate",
         "summary": "Generate an exact-length string",
         "description": "Generate a string of exactly the length given as the input text (a whole number), counted in characters, UTF-16 units or UTF-8 bytes; or a limit test set around that length; or a counterstring. Lengths up to 1,000,000 (limit sets up to 100,000).",
-        "tags": [
-          "string-length-generator"
-        ],
-        "x-tamperbox-website-tool-ids": [
-          "string-length-generator"
-        ],
+        "tags": ["string-length-generator"],
+        "x-tamperbox-website-tool-ids": ["string-length-generator"],
         "x-tamperbox-media-types": {
-          "accepts": [
-            "text/plain"
-          ],
-          "produces": [
-            "application/json"
-          ]
+          "accepts": ["text/plain"],
+          "produces": ["application/json"]
         },
         "requestBody": {
           "required": true,
@@ -1997,9 +1207,7 @@
                         "type": "string",
                         "maxLength": 100,
                         "description": "Media type of value.",
-                        "enum": [
-                          "text/plain"
-                        ]
+                        "enum": ["text/plain"]
                       },
                       "value": {
                         "type": "string",
@@ -2007,10 +1215,7 @@
                         "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                       }
                     },
-                    "required": [
-                      "mediaType",
-                      "value"
-                    ],
+                    "required": ["mediaType", "value"],
                     "additionalProperties": false
                   },
                   "options": {
@@ -2018,11 +1223,7 @@
                     "properties": {
                       "unit": {
                         "type": "string",
-                        "enum": [
-                          "chars",
-                          "utf16",
-                          "utf8"
-                        ],
+                        "enum": ["chars", "utf16", "utf8"],
                         "description": "What the length counts."
                       },
                       "fill": {
@@ -2040,11 +1241,7 @@
                       },
                       "mode": {
                         "type": "string",
-                        "enum": [
-                          "one",
-                          "set",
-                          "counter"
-                        ],
+                        "enum": ["one", "set", "counter"],
                         "description": "One string, a limit test set, or a counterstring."
                       }
                     },
@@ -2052,16 +1249,11 @@
                     "additionalProperties": false
                   }
                 },
-                "required": [
-                  "input"
-                ],
+                "required": ["input"],
                 "additionalProperties": false
               },
               "example": {
-                "input": {
-                  "mediaType": "text/plain",
-                  "value": "255"
-                }
+                "input": { "mediaType": "text/plain", "value": "255" }
               }
             }
           }
@@ -2079,9 +1271,7 @@
                       "properties": {
                         "mediaType": {
                           "type": "string",
-                          "enum": [
-                            "application/json"
-                          ]
+                          "enum": ["application/json"]
                         },
                         "value": {
                           "type": "string",
@@ -2089,10 +1279,7 @@
                           "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                         }
                       },
-                      "required": [
-                        "mediaType",
-                        "value"
-                      ],
+                      "required": ["mediaType", "value"],
                       "additionalProperties": false
                     },
                     "outputs": {
@@ -2111,10 +1298,7 @@
                             "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                           }
                         },
-                        "required": [
-                          "mediaType",
-                          "value"
-                        ],
+                        "required": ["mediaType", "value"],
                         "additionalProperties": false
                       }
                     },
@@ -2123,44 +1307,25 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "tool": {
-                            "type": "string"
-                          }
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
                         },
-                        "required": [
-                          "id",
-                          "tool"
-                        ],
+                        "required": ["id", "tool"],
                         "additionalProperties": false
                       }
                     },
                     "warnings": {
                       "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
+                      "items": { "type": "string" }
                     },
                     "provenance": {
                       "type": "object",
                       "properties": {
-                        "provider": {
-                          "type": "string"
-                        },
-                        "engineVersion": {
-                          "type": "string"
-                        },
-                        "tool": {
-                          "type": "string"
-                        },
-                        "attribution": {
-                          "type": "string"
-                        },
-                        "editorUrl": {
-                          "type": "string"
-                        }
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
                       },
                       "required": [
                         "provider",
@@ -2172,76 +1337,38 @@
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "output",
-                    "warnings",
-                    "provenance"
-                  ],
+                  "required": ["output", "warnings", "provenance"],
                   "additionalProperties": false
                 }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "405": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "408": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "413": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "415": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "502": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "504": {
-            "$ref": "#/components/responses/Problem"
-          }
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
         }
       }
     },
-    "/v1/tools/text_inspect": {
+    "/v1/tools/mojibake_fix": {
       "post": {
-        "operationId": "text_inspect",
-        "summary": "Inspect text for hidden characters",
-        "description": "Report invisible, direction, control, look-alike and decomposed characters in text with code point and position, and its length in characters, UTF-16 units, UTF-8 bytes and visible characters. A finding is a character present in the text, not proof of an attack. Look-alike letters are found only inside Latin words.",
-        "tags": [
-          "hidden-characters"
-        ],
-        "x-tamperbox-website-tool-ids": [
-          "hidden-characters"
-        ],
+        "operationId": "mojibake_fix",
+        "summary": "Repair garbled UTF-8 text",
+        "description": "Repair text that was UTF-8 read as Windows-1252 or Latin-1, up to three times over. Text that was not damaged is returned unchanged. Replacement characters (U+FFFD) mark data already lost and are not repaired; other encodings are not detected.",
+        "tags": ["mojibake-fixer"],
+        "x-tamperbox-website-tool-ids": ["mojibake-fixer"],
         "x-tamperbox-media-types": {
-          "accepts": [
-            "text/plain"
-          ],
-          "produces": [
-            "application/json"
-          ]
+          "accepts": ["text/plain"],
+          "produces": ["text/plain"]
         },
         "requestBody": {
           "required": true,
@@ -2257,9 +1384,7 @@
                         "type": "string",
                         "maxLength": 100,
                         "description": "Media type of value.",
-                        "enum": [
-                          "text/plain"
-                        ]
+                        "enum": ["text/plain"]
                       },
                       "value": {
                         "type": "string",
@@ -2267,35 +1392,21 @@
                         "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                       }
                     },
-                    "required": [
-                      "mediaType",
-                      "value"
-                    ],
+                    "required": ["mediaType", "value"],
                     "additionalProperties": false
                   },
                   "options": {
                     "type": "object",
-                    "properties": {
-                      "clean": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Also return the text with invisible characters removed, look-alike spaces replaced and the text in composed form (NFC)."
-                      }
-                    },
+                    "properties": {},
                     "required": [],
                     "additionalProperties": false
                   }
                 },
-                "required": [
-                  "input"
-                ],
+                "required": ["input"],
                 "additionalProperties": false
               },
               "example": {
-                "input": {
-                  "mediaType": "text/plain",
-                  "value": "ad​min"
-                }
+                "input": { "mediaType": "text/plain", "value": "cafÃ©" }
               }
             }
           }
@@ -2313,9 +1424,7 @@
                       "properties": {
                         "mediaType": {
                           "type": "string",
-                          "enum": [
-                            "application/json"
-                          ]
+                          "enum": ["text/plain"]
                         },
                         "value": {
                           "type": "string",
@@ -2323,10 +1432,7 @@
                           "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                         }
                       },
-                      "required": [
-                        "mediaType",
-                        "value"
-                      ],
+                      "required": ["mediaType", "value"],
                       "additionalProperties": false
                     },
                     "outputs": {
@@ -2345,10 +1451,7 @@
                             "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                           }
                         },
-                        "required": [
-                          "mediaType",
-                          "value"
-                        ],
+                        "required": ["mediaType", "value"],
                         "additionalProperties": false
                       }
                     },
@@ -2357,44 +1460,25 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "tool": {
-                            "type": "string"
-                          }
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
                         },
-                        "required": [
-                          "id",
-                          "tool"
-                        ],
+                        "required": ["id", "tool"],
                         "additionalProperties": false
                       }
                     },
                     "warnings": {
                       "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
+                      "items": { "type": "string" }
                     },
                     "provenance": {
                       "type": "object",
                       "properties": {
-                        "provider": {
-                          "type": "string"
-                        },
-                        "engineVersion": {
-                          "type": "string"
-                        },
-                        "tool": {
-                          "type": "string"
-                        },
-                        "attribution": {
-                          "type": "string"
-                        },
-                        "editorUrl": {
-                          "type": "string"
-                        }
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
                       },
                       "required": [
                         "provider",
@@ -2406,297 +1490,25 @@
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "output",
-                    "warnings",
-                    "provenance"
-                  ],
+                  "required": ["output", "warnings", "provenance"],
                   "additionalProperties": false
                 }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "405": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "408": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "413": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "415": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "502": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "504": {
-            "$ref": "#/components/responses/Problem"
-          }
-        }
-      }
-    },
-    "/v1/tools/timestamp_to_iso": {
-      "post": {
-        "operationId": "timestamp_to_iso",
-        "summary": "Convert timestamp to ISO",
-        "description": "Convert an explicit epoch unit or UTC calendar input to ISO text, preserving fractional precision. No live clock or local timezone inference.",
-        "tags": [
-          "unix-timestamp"
-        ],
-        "x-tamperbox-website-tool-ids": [
-          "unix-timestamp"
-        ],
-        "x-tamperbox-media-types": {
-          "accepts": [
-            "text/plain"
-          ],
-          "produces": [
-            "text/plain"
-          ]
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "input": {
-                    "type": "object",
-                    "properties": {
-                      "mediaType": {
-                        "type": "string",
-                        "maxLength": 100,
-                        "description": "Media type of value.",
-                        "enum": [
-                          "text/plain"
-                        ]
-                      },
-                      "value": {
-                        "type": "string",
-                        "maxLength": 1048576,
-                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                      }
-                    },
-                    "required": [
-                      "mediaType",
-                      "value"
-                    ],
-                    "additionalProperties": false
-                  },
-                  "options": {
-                    "type": "object",
-                    "properties": {
-                      "unit": {
-                        "type": "string",
-                        "enum": [
-                          "s",
-                          "ms",
-                          "us",
-                          "ns"
-                        ],
-                        "description": "Epoch unit. Calendar strings use UTC unless an explicit offset is supplied."
-                      }
-                    },
-                    "required": [],
-                    "additionalProperties": false
-                  }
-                },
-                "required": [
-                  "input"
-                ],
-                "additionalProperties": false
-              },
-              "example": {
-                "input": {
-                  "mediaType": "text/plain",
-                  "value": "1700000000"
-                },
-                "options": {
-                  "unit": "s"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "output": {
-                      "type": "object",
-                      "properties": {
-                        "mediaType": {
-                          "type": "string",
-                          "enum": [
-                            "text/plain"
-                          ]
-                        },
-                        "value": {
-                          "type": "string",
-                          "maxLength": 2097152,
-                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                        }
-                      },
-                      "required": [
-                        "mediaType",
-                        "value"
-                      ],
-                      "additionalProperties": false
-                    },
-                    "outputs": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "object",
-                        "properties": {
-                          "mediaType": {
-                            "type": "string",
-                            "maxLength": 100,
-                            "description": "Media type of value."
-                          },
-                          "value": {
-                            "type": "string",
-                            "maxLength": 2097152,
-                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
-                          }
-                        },
-                        "required": [
-                          "mediaType",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      }
-                    },
-                    "steps": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "tool": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "id",
-                          "tool"
-                        ],
-                        "additionalProperties": false
-                      }
-                    },
-                    "warnings": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "provenance": {
-                      "type": "object",
-                      "properties": {
-                        "provider": {
-                          "type": "string"
-                        },
-                        "engineVersion": {
-                          "type": "string"
-                        },
-                        "tool": {
-                          "type": "string"
-                        },
-                        "attribution": {
-                          "type": "string"
-                        },
-                        "editorUrl": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "provider",
-                        "engineVersion",
-                        "tool",
-                        "attribution",
-                        "editorUrl"
-                      ],
-                      "additionalProperties": false
-                    }
-                  },
-                  "required": [
-                    "output",
-                    "warnings",
-                    "provenance"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "405": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "408": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "413": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "415": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "502": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "504": {
-            "$ref": "#/components/responses/Problem"
-          }
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
         }
       }
     },
@@ -2705,19 +1517,11 @@
         "operationId": "har_sanitize",
         "summary": "Sanitize a HAR file",
         "description": "Replace passwords, tokens, cookies, API keys, private keys, emails and card numbers in a HAR file with stable placeholders, keeping it valid. JWTs keep their claims and lose their signature unless jwt is whole. Detection is by field name and known patterns; names and addresses in free text are not detected, so review the output before sharing.",
-        "tags": [
-          "har-sanitizer"
-        ],
-        "x-tamperbox-website-tool-ids": [
-          "har-sanitizer"
-        ],
+        "tags": ["har-sanitizer"],
+        "x-tamperbox-website-tool-ids": ["har-sanitizer"],
         "x-tamperbox-media-types": {
-          "accepts": [
-            "application/json"
-          ],
-          "produces": [
-            "application/json"
-          ]
+          "accepts": ["application/json"],
+          "produces": ["application/json"]
         },
         "requestBody": {
           "required": true,
@@ -2733,9 +1537,7 @@
                         "type": "string",
                         "maxLength": 100,
                         "description": "Media type of value.",
-                        "enum": [
-                          "application/json"
-                        ]
+                        "enum": ["application/json"]
                       },
                       "value": {
                         "type": "string",
@@ -2743,10 +1545,7 @@
                         "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                       }
                     },
-                    "required": [
-                      "mediaType",
-                      "value"
-                    ],
+                    "required": ["mediaType", "value"],
                     "additionalProperties": false
                   },
                   "options": {
@@ -2774,10 +1573,7 @@
                       },
                       "jwt": {
                         "type": "string",
-                        "enum": [
-                          "claims",
-                          "whole"
-                        ],
+                        "enum": ["claims", "whole"],
                         "description": "Keep JWT claims and remove the signature, or replace the whole token."
                       }
                     },
@@ -2785,9 +1581,7 @@
                     "additionalProperties": false
                   }
                 },
-                "required": [
-                  "input"
-                ],
+                "required": ["input"],
                 "additionalProperties": false
               },
               "example": {
@@ -2812,9 +1606,7 @@
                       "properties": {
                         "mediaType": {
                           "type": "string",
-                          "enum": [
-                            "application/json"
-                          ]
+                          "enum": ["application/json"]
                         },
                         "value": {
                           "type": "string",
@@ -2822,10 +1614,7 @@
                           "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                         }
                       },
-                      "required": [
-                        "mediaType",
-                        "value"
-                      ],
+                      "required": ["mediaType", "value"],
                       "additionalProperties": false
                     },
                     "outputs": {
@@ -2844,10 +1633,7 @@
                             "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
                           }
                         },
-                        "required": [
-                          "mediaType",
-                          "value"
-                        ],
+                        "required": ["mediaType", "value"],
                         "additionalProperties": false
                       }
                     },
@@ -2856,44 +1642,25 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "tool": {
-                            "type": "string"
-                          }
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
                         },
-                        "required": [
-                          "id",
-                          "tool"
-                        ],
+                        "required": ["id", "tool"],
                         "additionalProperties": false
                       }
                     },
                     "warnings": {
                       "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
+                      "items": { "type": "string" }
                     },
                     "provenance": {
                       "type": "object",
                       "properties": {
-                        "provider": {
-                          "type": "string"
-                        },
-                        "engineVersion": {
-                          "type": "string"
-                        },
-                        "tool": {
-                          "type": "string"
-                        },
-                        "attribution": {
-                          "type": "string"
-                        },
-                        "editorUrl": {
-                          "type": "string"
-                        }
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
                       },
                       "required": [
                         "provider",
@@ -2905,55 +1672,551 @@
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "output",
-                    "warnings",
-                    "provenance"
-                  ],
+                  "required": ["output", "warnings", "provenance"],
                   "additionalProperties": false
                 }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "405": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "408": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "413": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "415": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "502": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "504": {
-            "$ref": "#/components/responses/Problem"
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/tools/api_convert": {
+      "post": {
+        "operationId": "api_convert",
+        "summary": "Convert API document",
+        "description": "Convert supported Postman, OpenAPI or POSIX cURL text. Does not execute requests or fetch references. Conversion can lose unsupported features; secret replacement is incomplete and output needs review.",
+        "tags": ["postman-converter"],
+        "x-tamperbox-website-tool-ids": ["postman-converter"],
+        "x-tamperbox-media-types": {
+          "accepts": ["application/json", "application/yaml", "text/plain"],
+          "produces": ["application/json", "application/yaml", "text/plain"]
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "mediaType": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Media type of value.",
+                        "enum": [
+                          "application/json",
+                          "application/yaml",
+                          "text/plain"
+                        ]
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1048576,
+                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                      }
+                    },
+                    "required": ["mediaType", "value"],
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "target": {
+                        "type": "string",
+                        "enum": [
+                          "postman",
+                          "openapi-json",
+                          "openapi-yaml",
+                          "curl"
+                        ],
+                        "description": "Output format."
+                      },
+                      "redactSecrets": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Replace recognized credentials; not comprehensive secret detection."
+                      }
+                    },
+                    "required": ["target"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["input", "options"],
+                "additionalProperties": false
+              },
+              "example": {
+                "input": {
+                  "mediaType": "text/plain",
+                  "value": "curl https://example.com"
+                },
+                "options": { "target": "openapi-json" }
+              }
+            }
           }
+        },
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "mediaType": {
+                          "type": "string",
+                          "enum": [
+                            "application/json",
+                            "application/yaml",
+                            "text/plain"
+                          ]
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 2097152,
+                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                        }
+                      },
+                      "required": ["mediaType", "value"],
+                      "additionalProperties": false
+                    },
+                    "outputs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "mediaType": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Media type of value."
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 2097152,
+                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                          }
+                        },
+                        "required": ["mediaType", "value"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
+                        },
+                        "required": ["id", "tool"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
+                      },
+                      "required": [
+                        "provider",
+                        "engineVersion",
+                        "tool",
+                        "attribution",
+                        "editorUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["output", "warnings", "provenance"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/pipeline": {
+      "post": {
+        "operationId": "tamperbox_pipeline",
+        "summary": "Run a pure transform pipeline",
+        "description": "Run up to twenty pure artifact transforms in order. Network diagnostic operations are not pipeline steps; combine those using agent code and explicit request calls.",
+        "tags": ["agent-workflows"],
+        "x-tamperbox-website-tool-ids": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "version": { "type": "integer", "enum": [1] },
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "mediaType": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Media type of value."
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1048576,
+                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                      }
+                    },
+                    "required": ["mediaType", "value"],
+                    "additionalProperties": false
+                  },
+                  "steps": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_]{0,31}$"
+                        },
+                        "tool": {
+                          "type": "string",
+                          "enum": [
+                            "jwt_decode",
+                            "json_format",
+                            "json_to_yaml",
+                            "yaml_to_json",
+                            "timestamp_to_iso",
+                            "text_inspect",
+                            "naughty_strings",
+                            "string_generate",
+                            "mojibake_fix",
+                            "har_sanitize",
+                            "api_convert"
+                          ],
+                          "description": "Registered operation name."
+                        },
+                        "options": { "type": "object" }
+                      },
+                      "required": ["id", "tool"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "return": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "uniqueItems": true,
+                    "items": { "type": "string", "maxLength": 32 }
+                  }
+                },
+                "required": ["version", "input", "steps"],
+                "additionalProperties": false
+              },
+              "example": {
+                "version": 1,
+                "input": {
+                  "mediaType": "application/json",
+                  "value": "{\"example\":true}"
+                },
+                "steps": [{ "id": "yaml", "tool": "json_to_yaml" }]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "mediaType": {
+                          "type": "string",
+                          "maxLength": 100,
+                          "description": "Media type of value."
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 2097152,
+                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                        }
+                      },
+                      "required": ["mediaType", "value"],
+                      "additionalProperties": false
+                    },
+                    "outputs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "mediaType": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Media type of value."
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 2097152,
+                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                          }
+                        },
+                        "required": ["mediaType", "value"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
+                        },
+                        "required": ["id", "tool"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
+                      },
+                      "required": [
+                        "provider",
+                        "engineVersion",
+                        "tool",
+                        "attribution",
+                        "editorUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["outputs", "steps", "warnings", "provenance"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/find": {
+      "get": {
+        "operationId": "tamperbox_find",
+        "summary": "Find API operations",
+        "description": "Find available operations by task keywords or artifact media type. Send task descriptions rather than private inputs. Includes input and output contracts for planning calls.",
+        "tags": ["agent-workflows"],
+        "x-tamperbox-website-tool-ids": [],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 256,
+              "description": "Task keywords only; do not include tokens or tool inputs."
+            },
+            "example": "dns"
+          },
+          {
+            "name": "accepts",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "maxLength": 100 }
+          },
+          {
+            "name": "produces",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "maxLength": 100 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tools": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
+                      },
+                      "required": [
+                        "provider",
+                        "engineVersion",
+                        "tool",
+                        "attribution",
+                        "editorUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["tools", "provenance"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/recipes/{id}": {
+      "get": {
+        "operationId": "get_recipe",
+        "summary": "Fetch a public recipe",
+        "description": "Fetch the published JWT-to-YAML recipe definition. Retrieval does not run the recipe or verify a JWT signature or trust.",
+        "tags": ["agent-workflows"],
+        "x-tamperbox-website-tool-ids": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["jwt-to-yaml"],
+              "description": "Published recipe identifier."
+            },
+            "example": "jwt-to-yaml"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "title": { "type": "string" },
+                    "description": { "type": "string" },
+                    "version": { "type": "integer" },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    },
+                    "return": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "modifiedAt": { "type": "string" }
+                  },
+                  "required": ["id", "version", "steps"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
         }
       }
     }

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { catalog, discover, validateInput } from '../dist/catalog.js';
 
 describe('API contract', () => {
-  it('exposes the ten published transforms and three utility operations', () => {
+  it('exposes the eleven published transforms and three utility operations', () => {
     expect(catalog.map((x) => x.name).sort()).toEqual([
       'api_convert',
       'find',
@@ -17,6 +17,7 @@ describe('API contract', () => {
       'string_generate',
       'text_inspect',
       'timestamp_to_iso',
+      'yaml_to_json',
     ]);
   });
   it('discovers without transmitting a query and returns usable schemas', () => {

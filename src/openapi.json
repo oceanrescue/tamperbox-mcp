@@ -364,8 +364,8 @@
         "operationId": "json_to_yaml",
         "summary": "Convert JSON to YAML",
         "description": "Convert JSON to YAML without network access. Rejects unsafe numeric precision and duplicate keys. Does not execute embedded text.",
-        "tags": ["agent-workflows"],
-        "x-tamperbox-website-tool-ids": [],
+        "tags": ["json-to-yaml"],
+        "x-tamperbox-website-tool-ids": ["json-to-yaml"],
         "x-tamperbox-media-types": {
           "accepts": ["application/json"],
           "produces": ["application/yaml"]
@@ -436,6 +436,170 @@
                         "mediaType": {
                           "type": "string",
                           "enum": ["application/yaml"]
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 2097152,
+                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                        }
+                      },
+                      "required": ["mediaType", "value"],
+                      "additionalProperties": false
+                    },
+                    "outputs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "mediaType": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Media type of value."
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 2097152,
+                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                          }
+                        },
+                        "required": ["mediaType", "value"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
+                        },
+                        "required": ["id", "tool"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
+                      },
+                      "required": [
+                        "provider",
+                        "engineVersion",
+                        "tool",
+                        "attribution",
+                        "editorUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["output", "warnings", "provenance"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/tools/yaml_to_json": {
+      "post": {
+        "operationId": "yaml_to_json",
+        "summary": "Convert YAML to JSON",
+        "description": "Convert YAML to JSON without network access. Rejects duplicate keys, alias cycles, unsupported tags and numbers that cannot be represented safely.",
+        "tags": ["yaml-to-json"],
+        "x-tamperbox-website-tool-ids": ["yaml-to-json"],
+        "x-tamperbox-media-types": {
+          "accepts": ["application/yaml"],
+          "produces": ["application/json"]
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "mediaType": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Media type of value.",
+                        "enum": ["application/yaml"]
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1048576,
+                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                      }
+                    },
+                    "required": ["mediaType", "value"],
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "indent": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 8,
+                        "default": 2,
+                        "description": "Spaces per indentation level."
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+              },
+              "example": {
+                "input": {
+                  "mediaType": "application/yaml",
+                  "value": "example: true\n"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "mediaType": {
+                          "type": "string",
+                          "enum": ["application/json"]
                         },
                         "value": {
                           "type": "string",
@@ -14417,6 +14581,7 @@
                             "jwt_decode",
                             "json_format",
                             "json_to_yaml",
+                            "yaml_to_json",
                             "timestamp_to_iso",
                             "text_inspect",
                             "naughty_strings",

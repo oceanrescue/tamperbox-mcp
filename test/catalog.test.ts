@@ -2,15 +2,19 @@ import { describe, expect, it } from 'vitest';
 import { catalog, discover, validateInput } from '../dist/catalog.js';
 
 describe('API contract', () => {
-  it('exposes the five published transforms and three utility operations', () => {
+  it('exposes the nine published transforms and three utility operations', () => {
     expect(catalog.map((x) => x.name).sort()).toEqual([
       'api_convert',
       'find',
       'json_format',
       'json_to_yaml',
       'jwt_decode',
+      'mojibake_fix',
+      'naughty_strings',
       'pipeline',
       'recipe',
+      'string_generate',
+      'text_inspect',
       'timestamp_to_iso',
     ]);
   });

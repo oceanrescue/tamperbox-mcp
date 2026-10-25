@@ -63,10 +63,7 @@
           "output": {
             "type": "object",
             "properties": {
-              "mediaType": {
-                "type": "string",
-                "enum": ["application/json"]
-              },
+              "mediaType": { "type": "string", "enum": ["application/json"] },
               "value": {
                 "type": "string",
                 "maxLength": 2097152,
@@ -101,41 +98,22 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "tool": {
-                  "type": "string"
-                }
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
               },
               "required": ["id", "tool"],
               "additionalProperties": false
             }
           },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
           "provenance": {
             "type": "object",
             "properties": {
-              "provider": {
-                "type": "string"
-              },
-              "engineVersion": {
-                "type": "string"
-              },
-              "tool": {
-                "type": "string"
-              },
-              "attribution": {
-                "type": "string"
-              },
-              "editorUrl": {
-                "type": "string"
-              }
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
             },
             "required": [
               "provider",
@@ -229,10 +207,7 @@
           "output": {
             "type": "object",
             "properties": {
-              "mediaType": {
-                "type": "string",
-                "enum": ["application/json"]
-              },
+              "mediaType": { "type": "string", "enum": ["application/json"] },
               "value": {
                 "type": "string",
                 "maxLength": 2097152,
@@ -267,41 +242,22 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "tool": {
-                  "type": "string"
-                }
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
               },
               "required": ["id", "tool"],
               "additionalProperties": false
             }
           },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
           "provenance": {
             "type": "object",
             "properties": {
-              "provider": {
-                "type": "string"
-              },
-              "engineVersion": {
-                "type": "string"
-              },
-              "tool": {
-                "type": "string"
-              },
-              "attribution": {
-                "type": "string"
-              },
-              "editorUrl": {
-                "type": "string"
-              }
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
             },
             "required": [
               "provider",
@@ -395,10 +351,7 @@
           "output": {
             "type": "object",
             "properties": {
-              "mediaType": {
-                "type": "string",
-                "enum": ["application/yaml"]
-              },
+              "mediaType": { "type": "string", "enum": ["application/yaml"] },
               "value": {
                 "type": "string",
                 "maxLength": 2097152,
@@ -433,41 +386,22 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "tool": {
-                  "type": "string"
-                }
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
               },
               "required": ["id", "tool"],
               "additionalProperties": false
             }
           },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
           "provenance": {
             "type": "object",
             "properties": {
-              "provider": {
-                "type": "string"
-              },
-              "engineVersion": {
-                "type": "string"
-              },
-              "tool": {
-                "type": "string"
-              },
-              "attribution": {
-                "type": "string"
-              },
-              "editorUrl": {
-                "type": "string"
-              }
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
             },
             "required": [
               "provider",
@@ -502,10 +436,7 @@
         "required": [],
         "additionalProperties": false
       },
-      "example": {
-        "mediaType": "text/plain",
-        "value": "1700000000"
-      },
+      "example": { "mediaType": "text/plain", "value": "1700000000" },
       "version": "1.0.0",
       "annotations": {
         "readOnlyHint": true,
@@ -557,10 +488,7 @@
           "output": {
             "type": "object",
             "properties": {
-              "mediaType": {
-                "type": "string",
-                "enum": ["text/plain"]
-              },
+              "mediaType": { "type": "string", "enum": ["text/plain"] },
               "value": {
                 "type": "string",
                 "maxLength": 2097152,
@@ -595,41 +523,628 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "tool": {
-                  "type": "string"
-                }
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
               },
               "required": ["id", "tool"],
               "additionalProperties": false
             }
           },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
           "provenance": {
             "type": "object",
             "properties": {
-              "provider": {
-                "type": "string"
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
+            },
+            "required": [
+              "provider",
+              "engineVersion",
+              "tool",
+              "attribution",
+              "editorUrl"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": ["output", "warnings", "provenance"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "text_inspect",
+      "title": "Inspect text for hidden characters",
+      "page": "/hidden-characters",
+      "accepts": ["text/plain"],
+      "produces": ["application/json"],
+      "description": "Report invisible, direction, control, look-alike and decomposed characters in text with code point and position, and its length in characters, UTF-16 units, UTF-8 bytes and visible characters. A finding is a character present in the text, not proof of an attack. Look-alike letters are found only inside Latin words.",
+      "options": {
+        "type": "object",
+        "properties": {
+          "clean": {
+            "type": "boolean",
+            "default": false,
+            "description": "Also return the text with invisible characters removed, look-alike spaces replaced and the text in composed form (NFC)."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "example": { "mediaType": "text/plain", "value": "ad​min" },
+      "version": "1.0.0",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "title": "Inspect text for hidden characters"
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "maxLength": 100,
+                "description": "Media type of value.",
+                "enum": ["text/plain"]
               },
-              "engineVersion": {
-                "type": "string"
-              },
-              "tool": {
-                "type": "string"
-              },
-              "attribution": {
-                "type": "string"
-              },
-              "editorUrl": {
-                "type": "string"
+              "value": {
+                "type": "string",
+                "maxLength": 1048576,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
               }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "clean": {
+                "type": "boolean",
+                "default": false,
+                "description": "Also return the text with invisible characters removed, look-alike spaces replaced and the text in composed form (NFC)."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": ["input"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "object",
+            "properties": {
+              "mediaType": { "type": "string", "enum": ["application/json"] },
+              "value": {
+                "type": "string",
+                "maxLength": 2097152,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "outputs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "mediaType": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "Media type of value."
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 2097152,
+                  "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                }
+              },
+              "required": ["mediaType", "value"],
+              "additionalProperties": false
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
+              },
+              "required": ["id", "tool"],
+              "additionalProperties": false
+            }
+          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
+          "provenance": {
+            "type": "object",
+            "properties": {
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
+            },
+            "required": [
+              "provider",
+              "engineVersion",
+              "tool",
+              "attribution",
+              "editorUrl"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": ["output", "warnings", "provenance"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "naughty_strings",
+      "title": "List hostile test strings",
+      "page": "/naughty-strings",
+      "accepts": ["text/plain"],
+      "produces": ["application/json"],
+      "description": "Return hostile test strings matching a search (the input text; empty for all), each with what it tests. Active payloads (injection, spreadsheet formulas, path traversal) are excluded unless requested; use them only against systems you may test.",
+      "options": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "empty",
+              "whitespace",
+              "unicode",
+              "encoding",
+              "names",
+              "numbers",
+              "dates",
+              "formats",
+              "csv",
+              "injection",
+              "paths"
+            ],
+            "description": "Limit the list to one category."
+          },
+          "includeActive": {
+            "type": "boolean",
+            "default": false,
+            "description": "Include payloads built to be acted on by a parser, interpreter or file system."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "example": { "mediaType": "text/plain", "value": "emoji" },
+      "version": "1.0.0",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "title": "List hostile test strings"
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "maxLength": 100,
+                "description": "Media type of value.",
+                "enum": ["text/plain"]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 1048576,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string",
+                "enum": [
+                  "empty",
+                  "whitespace",
+                  "unicode",
+                  "encoding",
+                  "names",
+                  "numbers",
+                  "dates",
+                  "formats",
+                  "csv",
+                  "injection",
+                  "paths"
+                ],
+                "description": "Limit the list to one category."
+              },
+              "includeActive": {
+                "type": "boolean",
+                "default": false,
+                "description": "Include payloads built to be acted on by a parser, interpreter or file system."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": ["input"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "object",
+            "properties": {
+              "mediaType": { "type": "string", "enum": ["application/json"] },
+              "value": {
+                "type": "string",
+                "maxLength": 2097152,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "outputs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "mediaType": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "Media type of value."
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 2097152,
+                  "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                }
+              },
+              "required": ["mediaType", "value"],
+              "additionalProperties": false
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
+              },
+              "required": ["id", "tool"],
+              "additionalProperties": false
+            }
+          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
+          "provenance": {
+            "type": "object",
+            "properties": {
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
+            },
+            "required": [
+              "provider",
+              "engineVersion",
+              "tool",
+              "attribution",
+              "editorUrl"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": ["output", "warnings", "provenance"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "string_generate",
+      "title": "Generate an exact-length string",
+      "page": "/string-length-generator",
+      "accepts": ["text/plain"],
+      "produces": ["application/json"],
+      "description": "Generate a string of exactly the length given as the input text (a whole number), counted in characters, UTF-16 units or UTF-8 bytes; or a limit test set around that length; or a counterstring. Lengths up to 1,000,000 (limit sets up to 100,000).",
+      "options": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string",
+            "enum": ["chars", "utf16", "utf8"],
+            "description": "What the length counts."
+          },
+          "fill": {
+            "type": "string",
+            "enum": [
+              "ascii",
+              "digits",
+              "latin",
+              "cjk",
+              "emoji",
+              "mixed",
+              "combining"
+            ],
+            "description": "Characters to build the string from."
+          },
+          "mode": {
+            "type": "string",
+            "enum": ["one", "set", "counter"],
+            "description": "One string, a limit test set, or a counterstring."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "example": { "mediaType": "text/plain", "value": "255" },
+      "version": "1.0.0",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "title": "Generate an exact-length string"
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "maxLength": 100,
+                "description": "Media type of value.",
+                "enum": ["text/plain"]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 1048576,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "unit": {
+                "type": "string",
+                "enum": ["chars", "utf16", "utf8"],
+                "description": "What the length counts."
+              },
+              "fill": {
+                "type": "string",
+                "enum": [
+                  "ascii",
+                  "digits",
+                  "latin",
+                  "cjk",
+                  "emoji",
+                  "mixed",
+                  "combining"
+                ],
+                "description": "Characters to build the string from."
+              },
+              "mode": {
+                "type": "string",
+                "enum": ["one", "set", "counter"],
+                "description": "One string, a limit test set, or a counterstring."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": ["input"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "object",
+            "properties": {
+              "mediaType": { "type": "string", "enum": ["application/json"] },
+              "value": {
+                "type": "string",
+                "maxLength": 2097152,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "outputs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "mediaType": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "Media type of value."
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 2097152,
+                  "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                }
+              },
+              "required": ["mediaType", "value"],
+              "additionalProperties": false
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
+              },
+              "required": ["id", "tool"],
+              "additionalProperties": false
+            }
+          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
+          "provenance": {
+            "type": "object",
+            "properties": {
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
+            },
+            "required": [
+              "provider",
+              "engineVersion",
+              "tool",
+              "attribution",
+              "editorUrl"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": ["output", "warnings", "provenance"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "mojibake_fix",
+      "title": "Repair garbled UTF-8 text",
+      "page": "/mojibake-fixer",
+      "accepts": ["text/plain"],
+      "produces": ["text/plain"],
+      "description": "Repair text that was UTF-8 read as Windows-1252 or Latin-1, up to three times over. Text that was not damaged is returned unchanged. Replacement characters (U+FFFD) mark data already lost and are not repaired; other encodings are not detected.",
+      "options": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "example": { "mediaType": "text/plain", "value": "cafÃ©" },
+      "version": "1.0.0",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "title": "Repair garbled UTF-8 text"
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "object",
+            "properties": {
+              "mediaType": {
+                "type": "string",
+                "maxLength": 100,
+                "description": "Media type of value.",
+                "enum": ["text/plain"]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 1048576,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "options": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": ["input"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "object",
+            "properties": {
+              "mediaType": { "type": "string", "enum": ["text/plain"] },
+              "value": {
+                "type": "string",
+                "maxLength": 2097152,
+                "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+              }
+            },
+            "required": ["mediaType", "value"],
+            "additionalProperties": false
+          },
+          "outputs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "mediaType": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "Media type of value."
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 2097152,
+                  "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                }
+              },
+              "required": ["mediaType", "value"],
+              "additionalProperties": false
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
+              },
+              "required": ["id", "tool"],
+              "additionalProperties": false
+            }
+          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
+          "provenance": {
+            "type": "object",
+            "properties": {
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
             },
             "required": [
               "provider",
@@ -767,41 +1282,22 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "tool": {
-                  "type": "string"
-                }
+                "id": { "type": "string" },
+                "tool": { "type": "string" }
               },
               "required": ["id", "tool"],
               "additionalProperties": false
             }
           },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
           "provenance": {
             "type": "object",
             "properties": {
-              "provider": {
-                "type": "string"
-              },
-              "engineVersion": {
-                "type": "string"
-              },
-              "tool": {
-                "type": "string"
-              },
-              "attribution": {
-                "type": "string"
-              },
-              "editorUrl": {
-                "type": "string"
-              }
+              "provider": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "tool": { "type": "string" },
+              "attribution": { "type": "string" },
+              "editorUrl": { "type": "string" }
             },
             "required": [
               "provider",
@@ -821,10 +1317,7 @@
   "pipelineSchema": {
     "type": "object",
     "properties": {
-      "version": {
-        "type": "integer",
-        "enum": [1]
-      },
+      "version": { "type": "integer", "enum": [1] },
       "input": {
         "type": "object",
         "properties": {
@@ -849,10 +1342,7 @@
         "items": {
           "type": "object",
           "properties": {
-            "id": {
-              "type": "string",
-              "pattern": "^[a-z][a-z0-9_]{0,31}$"
-            },
+            "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,31}$" },
             "tool": {
               "type": "string",
               "enum": [
@@ -860,13 +1350,15 @@
                 "json_format",
                 "json_to_yaml",
                 "timestamp_to_iso",
+                "text_inspect",
+                "naughty_strings",
+                "string_generate",
+                "mojibake_fix",
                 "api_convert"
               ],
               "description": "Registered operation name."
             },
-            "options": {
-              "type": "object"
-            }
+            "options": { "type": "object" }
           },
           "required": ["id", "tool"],
           "additionalProperties": false
@@ -877,10 +1369,7 @@
         "minItems": 1,
         "maxItems": 20,
         "uniqueItems": true,
-        "items": {
-          "type": "string",
-          "maxLength": 32
-        }
+        "items": { "type": "string", "maxLength": 32 }
       }
     },
     "required": ["version", "input", "steps"],
@@ -931,41 +1420,22 @@
         "items": {
           "type": "object",
           "properties": {
-            "id": {
-              "type": "string"
-            },
-            "tool": {
-              "type": "string"
-            }
+            "id": { "type": "string" },
+            "tool": { "type": "string" }
           },
           "required": ["id", "tool"],
           "additionalProperties": false
         }
       },
-      "warnings": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
-      },
+      "warnings": { "type": "array", "items": { "type": "string" } },
       "provenance": {
         "type": "object",
         "properties": {
-          "provider": {
-            "type": "string"
-          },
-          "engineVersion": {
-            "type": "string"
-          },
-          "tool": {
-            "type": "string"
-          },
-          "attribution": {
-            "type": "string"
-          },
-          "editorUrl": {
-            "type": "string"
-          }
+          "provider": { "type": "string" },
+          "engineVersion": { "type": "string" },
+          "tool": { "type": "string" },
+          "attribution": { "type": "string" },
+          "editorUrl": { "type": "string" }
         },
         "required": [
           "provider",
@@ -988,37 +1458,21 @@
         "maxLength": 256,
         "description": "Task keywords only; do not include tokens or tool inputs."
       },
-      "accepts": {
-        "type": "string",
-        "maxLength": 100
-      },
-      "produces": {
-        "type": "string",
-        "maxLength": 100
-      }
+      "accepts": { "type": "string", "maxLength": 100 },
+      "produces": { "type": "string", "maxLength": 100 }
     },
     "required": [],
     "additionalProperties": false
   },
   "recipe": {
     "id": "jwt-to-yaml",
-    "modifiedAt": "2026-10-13",
+    "modifiedAt": "2026-10-18",
     "title": "Decode a JWT and inspect it as YAML",
     "description": "Decode only; the YAML is not evidence of signature validity or trust.",
     "version": 1,
     "steps": [
-      {
-        "id": "decode",
-        "tool": "jwt_decode",
-        "options": {}
-      },
-      {
-        "id": "yaml",
-        "tool": "json_to_yaml",
-        "options": {
-          "indent": 2
-        }
-      }
+      { "id": "decode", "tool": "jwt_decode", "options": {} },
+      { "id": "yaml", "tool": "json_to_yaml", "options": { "indent": 2 } }
     ],
     "return": ["yaml"]
   }

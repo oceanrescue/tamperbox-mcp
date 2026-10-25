@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { operations, spec, validateRequest } from '../dist/spec.js';
 
 describe('complete bundled API contract', () => {
-  it('covers all 57 pages and their expanded server capabilities', () => {
-    expect(operations).toHaveLength(118);
-    expect(new Set(operations.flatMap((o) => o.websiteToolIds)).size).toBe(57);
+  it('covers all 58 pages and their expanded server capabilities', () => {
+    expect(operations).toHaveLength(119);
+    expect(new Set(operations.flatMap((o) => o.websiteToolIds)).size).toBe(58);
     expect(new Set(operations.map((o) => o.operationId)).size).toBe(
       operations.length,
     );

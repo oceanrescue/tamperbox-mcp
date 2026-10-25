@@ -1,14 +1,58 @@
-# Cloudflare production and preview
+# Cloudflare local development, production and preview
 
 This private deployment package runs the Node/QuickJS server in a Cloudflare Container. `wrangler.production.jsonc` owns `mcp.tamperbox.dev` through the `tamperbox-code-mode` Worker. The default `wrangler.jsonc` continues to manage the separate preview. No deployment command runs automatically.
+
+## Local development
+
+Install both dependency trees once, then start Wrangler from the repository root:
+
+```sh
+npm ci
+npm --prefix deploy/cloudflare ci
+npm run worker:dev
+```
+
+The local-only configuration is `wrangler.local.jsonc`. It uses dedicated HTTP port 18791 and inspector port 19291 to coexist with the website, docs and other local Workers. It listens at `http://localhost:18791`, builds the repository Dockerfile and permits plain HTTP only for the configured loopback origin. Production and preview continue to require their exact HTTPS origins.
+
+For Podman, use this command from the repository root instead of `worker:dev`:
+
+```sh
+npm run worker:dev:podman
+```
+
+The launcher discovers the macOS Podman machine socket, uses the existing image-build adapter, and starts a private Unix-socket API adapter for Wrangler. If the socket is elsewhere (including native Linux), set `DOCKER_HOST=unix:///absolute/path/to/podman.sock`. `WRANGLER_DOCKER_HOST` takes precedence when both are set. Podman must already be running.
+
+With Wrangler 4.152.0, workerd sends `HostConfig.MemorySwappiness: 0` when creating both its network sidecar and application container. Podman 5.8.2 with crun 1.25.1 rejects that setting on cgroup v2. The local API adapter omits only that zero-valued field, only on cgroup v2, and only for this project's named local workerd containers and expected images. It preserves other resource settings and explicit nonzero swappiness values. It neither changes the Podman VM nor patches installed dependencies. The socket is private to the current user and is removed when Wrangler exits. Production and preview deployment commands do not use this adapter.
+
+The earlier Podman build/registry-digest fix remains in use; see the [container verification record](../../docs/verification.md) and [hosted acceptance record](../../docs/hosted-acceptance.md). See [local Podman acceptance](../../docs/podman-local-acceptance.md) for the reproduced failure and successful full-path validation.
+
+Check readiness at `http://localhost:18791/health` and connect an MCP client to `http://localhost:18791/mcp`. To require a bearer token locally, create the ignored file `deploy/cloudflare/.dev.vars` containing `MCP_TOKEN=...`; never commit that file.
+
+## Tests
+
+From the repository root:
+
+```sh
+npm run worker:test
+npm run worker:check
+npm run worker:check:production
+# In a second terminal while worker:dev:podman is running:
+npm run worker:test:local
+```
+
+`worker:test` builds the root TypeScript package, runs the adapter and Podman-wrapper unit tests, and runs the real Node/QuickJS cancellation integration test. `worker:check` additionally performs a local-config deployment dry run and requires a container engine (the Podman wrapper was verified for this build). `worker:check:production` validates the production config and pinned image without deploying. `worker:test:local` runs the acceptance suite against the fixed `http://localhost:18791/mcp` endpoint; it includes outbound requests to the public Tamperbox API. Hosted acceptance still requires HTTPS.
+
+Review validation on 20 October 2026: root package checks passed 360 tests, coverage and packed-package smoke checks; Worker checks passed 30 unit tests and one real Node/QuickJS cancellation integration test. Local and production deployment dry runs passed with Wrangler 4.151.3. The initial local runtime check exposed the swappiness incompatibility above. After the local API adapter fix, all 15 acceptance checks passed through Wrangler and the real Podman container, including live API egress. The four new API-adapter regression tests also passed. No deployment was performed.
 
 ## Production
 
 The public endpoint is `https://mcp.tamperbox.dev/mcp`, with no authentication. The production image is pinned by digest to the artifact verified in preview. Updating source code alone does not update that image: build and verify a new preview image, then explicitly update the production digest before deploying. Keep the referenced registry image available while either environment uses it.
 
+From the repository root:
+
 ```sh
-npm run check:production
-npm run deploy:production
+npm run worker:check:production
+npm run worker:deploy:production
 # From the repository root after deployment:
 TAMPERBOX_MCP_URL=https://mcp.tamperbox.dev/mcp npm run test:hosted
 ```
@@ -17,20 +61,19 @@ Production disables workers.dev and version preview URLs, uses its own Durable O
 
 ## Preview
 
-The preview hostname is `tamperbox-code-mode-preview.i5634446.workers.dev`. `PUBLIC_HOST` must exactly match the published hostname; a missing or invalid value fails closed. The Worker accepts only HTTPS `/mcp` (POST/OPTIONS) and `/health` (GET).
+The preview hostname is `tamperbox-code-mode-preview.i5634446.workers.dev`. `PUBLIC_ORIGIN` must exactly match the published origin; a missing or invalid value fails closed. The Worker accepts only HTTPS `/mcp` (POST/OPTIONS) and `/health` (GET).
 
 ```sh
 cd deploy/cloudflare
 npm ci
 npm test
-npm run test:node-integration  # requires the root npm run build first
-npm run check                # tests and deployment dry run; requires Docker
+npm run check:preview # tests and deployment dry run; requires a container engine
 ```
 
 For this machine's Podman engine, use the included standalone compatibility wrapper:
 
 ```sh
-WRANGLER_DOCKER_BIN="$PWD/wrangler-podman.mjs" npm run check
+WRANGLER_DOCKER_BIN="$PWD/wrangler-podman.mjs" npm run check:preview
 ```
 
 The wrapper preserves target architecture and verifies the remote manifest digest after a registry push. The dry run builds locally without pushing an image or deploying a Worker. No sibling checkout is required.

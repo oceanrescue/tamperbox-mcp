@@ -4,6 +4,22 @@ For local clients, prefer stdio. For remote clients, run the Node service behind
 
 A dedicated Cloudflare container adapter is maintained in [deploy/cloudflare](https://github.com/oceanrescue/tamperbox-mcp/tree/main/deploy/cloudflare). Production is `https://mcp.tamperbox.dev/mcp` (no authentication), deployed with `deploy/cloudflare/wrangler.production.jsonc`. See the [production acceptance and rollback record](production-acceptance.md). The public preview is `https://tamperbox-code-mode-preview.i5634446.workers.dev/mcp` (no authentication). Its [acceptance record](hosted-acceptance.md) includes real client and lifecycle checks. The adapter supplies a separate preview hostname, bounded startup/lifecycle handling, ingress validation and rate limiting. Its tests include cancellation through the actual Node/QuickJS service. See that directory for resource allocation and deployment instructions; the default configuration manages the preview, while the production configuration owns `mcp.tamperbox.dev`.
 
+The root scripts expose the complete Worker workflow:
+
+```sh
+npm ci
+npm --prefix deploy/cloudflare ci
+npm run worker:dev                 # http://localhost:18791 (Docker)
+npm run worker:dev:podman          # same local Worker, with Podman compatibility
+npm run worker:test:local          # acceptance; local Worker must be running
+npm run worker:test                # unit and Node/QuickJS integration tests
+npm run worker:check               # tests plus local-config dry run
+npm run worker:check:production    # tests plus production dry run
+npm run worker:deploy:production   # explicit production deployment
+```
+
+The local Worker config permits HTTP only for its exact loopback origin. Preview and production accept only their exact HTTPS origins. A container engine is required to build the Cloudflare Container. Podman builds use the verified compatibility adapter; see the deployment package README for setup, the verified local Wrangler runtime adapter, and local secret handling.
+
 ```sh
 npm ci
 npm run build
@@ -40,4 +56,4 @@ From a source checkout, run the opt-in hosted acceptance suite against the new s
 TAMPERBOX_MCP_URL=https://mcp.tamperbox.dev/mcp npm run test:hosted
 ```
 
-It checks protocol initialization and schemas, 58-operation discovery, isolated code, live JSON/JWT/DNS examples, and HTTP rejection behavior. It reports unavailable services separately from successful results. Set `TAMPERBOX_MCP_TOKEN` locally when the deployment requires a bearer token. The suite verifies selected hosted behavior, not every diagnostic's availability or provider-model acceptance.
+It checks protocol initialization and schemas, discovery matching the bundled operation catalog, isolated code, live JSON/JWT/DNS examples, and HTTP rejection behavior. It reports unavailable services separately from successful results. Set `TAMPERBOX_MCP_TOKEN` locally when the deployment requires a bearer token. The suite verifies selected hosted behavior, not every diagnostic's availability or provider-model acceptance.

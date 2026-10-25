@@ -2,11 +2,13 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "tamperbox-code-mode-preview",
   "main": "worker.js",
-  "compatibility_date": "2026-10-18",
-  "compatibility_flags": ["enable_request_signal"],
+  "compatibility_date": "2026-10-19",
+  "compatibility_flags": ["enable_request_signal", "nodejs_compat"],
   "workers_dev": true,
   "preview_urls": false,
-  "vars": { "PUBLIC_HOST": "tamperbox-code-mode-preview.i5634446.workers.dev" },
+  "vars": {
+    "PUBLIC_ORIGIN": "https://tamperbox-code-mode-preview.i5634446.workers.dev",
+  },
   "ratelimits": [
     {
       "name": "RATE_LIMITER",

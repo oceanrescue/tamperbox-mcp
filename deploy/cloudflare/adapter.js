@@ -85,16 +85,30 @@ export async function readBody(
   }
 }
 function configuration(env) {
-  const host = env.PUBLIC_HOST;
+  const publicOrigin = env.PUBLIC_ORIGIN;
+  if (typeof publicOrigin !== 'string')
+    throw fail(503, 'Service configuration is incomplete.');
+  let publicUrl;
+  try {
+    publicUrl = new URL(publicOrigin);
+  } catch {
+    throw fail(503, 'Service configuration is incomplete.');
+  }
+  const local = env.LOCAL_DEVELOPMENT === 'true';
+  const loopback = ['localhost', '127.0.0.1', '[::1]'].includes(
+    publicUrl.hostname,
+  );
   if (
-    typeof host !== 'string' ||
-    !/(?=^.{1,253}$)^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])$/.test(host) ||
-    !host.includes('.') ||
-    host.includes('..')
+    publicUrl.origin !== publicOrigin ||
+    publicUrl.username ||
+    publicUrl.password ||
+    (local
+      ? publicUrl.protocol !== 'http:' || !loopback
+      : publicUrl.protocol !== 'https:' || publicUrl.port)
   )
     throw fail(503, 'Service configuration is incomplete.');
   const origins = [
-    `https://${host}`,
+    publicOrigin,
     ...(env.ALLOWED_ORIGINS ?? '').split(',').filter(Boolean),
   ];
   for (const origin of origins) {
@@ -104,7 +118,10 @@ function configuration(env) {
     } catch {
       throw fail(503, 'Service configuration is incomplete.');
     }
-    if (url.origin !== origin || url.protocol !== 'https:')
+    if (
+      url.origin !== origin ||
+      (origin !== publicOrigin && url.protocol !== 'https:')
+    )
       throw fail(503, 'Service configuration is incomplete.');
   }
   if (
@@ -114,17 +131,12 @@ function configuration(env) {
       /[\s\u0000-\u001f\u007f]/u.test(env.MCP_TOKEN))
   )
     throw fail(503, 'Service configuration is incomplete.');
-  return { host, origins };
+  return { publicOrigin, origins };
 }
 function checkRequest(request, env) {
   const config = configuration(env),
     url = new URL(request.url);
-  if (
-    url.protocol !== 'https:' ||
-    url.host !== config.host ||
-    url.username ||
-    url.password
-  )
+  if (url.origin !== config.publicOrigin || url.username || url.password)
     throw fail(403, 'Host is not allowed.');
   if (url.search || url.hash || !['/mcp', '/health'].includes(url.pathname))
     throw fail(404, 'Not found.');

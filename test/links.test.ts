@@ -1,9 +1,10 @@
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, posix, win32 } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   extractLinks,
+  isRepositoryPath,
   markdownAnchors,
   validateFirstPartyLink,
   validateLocalLink,
@@ -57,6 +58,74 @@ describe('repository link checker', () => {
     ).toThrow('unknown Tamperbox page /json-to-yml');
   });
 
+  it.each([
+    ['POSIX', posix, '/workspace/repo'],
+    ['Windows drive', win32, 'C:\\workspace\\repo'],
+    ['Windows UNC', win32, '\\\\server\\share\\repo'],
+  ] as const)('checks containment with %s path semantics', (_, paths, root) => {
+    for (const directory of [root, root + paths.sep]) {
+      expect(isRepositoryPath(root, directory, paths)).toBe(true);
+      expect(
+        isRepositoryPath(
+          paths.join(root, 'docs', 'guide.md'),
+          directory,
+          paths,
+        ),
+      ).toBe(true);
+      expect(
+        isRepositoryPath(
+          paths.join(root, 'docs', '..', 'README.md'),
+          directory,
+          paths,
+        ),
+      ).toBe(true);
+      expect(
+        isRepositoryPath(paths.join(root, '..notes.md'), directory, paths),
+      ).toBe(true);
+      expect(isRepositoryPath(paths.dirname(root), directory, paths)).toBe(
+        false,
+      );
+      expect(
+        isRepositoryPath(
+          paths.join(root, '..', 'outside.md'),
+          directory,
+          paths,
+        ),
+      ).toBe(false);
+      expect(
+        isRepositoryPath(
+          root + '-sibling' + paths.sep + 'guide.md',
+          directory,
+          paths,
+        ),
+      ).toBe(false);
+    }
+  });
+
+  it('handles Windows case and mixed separators without accepting another drive or share', () => {
+    expect(
+      isRepositoryPath(
+        'c:/WORKSPACE/repo/docs/guide.md',
+        'C:\\workspace\\repo',
+        win32,
+      ),
+    ).toBe(true);
+    expect(
+      isRepositoryPath(
+        'D:\\workspace\\repo\\guide.md',
+        'C:\\workspace\\repo',
+        win32,
+      ),
+    ).toBe(false);
+    expect(
+      isRepositoryPath(
+        '\\\\server\\other\\repo\\guide.md',
+        '\\\\server\\share\\repo',
+        win32,
+      ),
+    ).toBe(false);
+  });
+
   it('accepts existing files and anchors and rejects missing anchors', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'tamperbox-links-'));
     temporaryDirectories.push(directory);
@@ -70,5 +139,11 @@ describe('repository link checker', () => {
     await expect(
       validateLocalLink(source, 'docs/guide.md#missing', directory),
     ).rejects.toThrow('missing anchor #missing');
+    await expect(
+      validateLocalLink(source, '../outside.md', directory),
+    ).rejects.toThrow('escapes the repository');
+    await expect(
+      validateLocalLink(source, '%2e%2e/outside.md', directory),
+    ).rejects.toThrow('escapes the repository');
   });
 });

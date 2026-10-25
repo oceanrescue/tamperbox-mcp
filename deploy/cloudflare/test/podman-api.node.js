@@ -144,6 +144,34 @@ test('real Unix socket forwards requests and responses, adjusting only create pa
 });
 
 test(
+  'rejects an oversized unfinished upload before closing its socket',
+  { timeout: 5000 },
+  async (t) => {
+    const { socketPath, received } = await fixture(t);
+    const socket = connect(socketPath);
+    t.after(() => socket.destroy());
+    const closed = once(socket, 'close');
+    const chunks = [];
+    socket.on('data', (chunk) => chunks.push(chunk));
+    await once(socket, 'connect');
+    const oversized = Buffer.alloc(1024 * 1024 + 1, 'x');
+    socket.write(
+      `POST ${path} HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\n\r\n`,
+    );
+    socket.write(oversized.length.toString(16) + '\r\n');
+    socket.write(oversized);
+    socket.write('\r\n');
+    // Deliberately omit the terminating chunk: rejection must not wait for EOF.
+    await closed;
+    const reply = Buffer.concat(chunks).toString();
+    assert.match(reply, /^HTTP\/1\.1 413 /);
+    assert.match(reply, /\r\nconnection: close\r\n/i);
+    assert.match(reply, /\r\n\r\n0\r\n\r\n$/);
+    assert.equal(received.length, 0);
+  },
+);
+
+test(
   'preserves Docker upgraded bidirectional streams',
   { timeout: 5000 },
   async (t) => {

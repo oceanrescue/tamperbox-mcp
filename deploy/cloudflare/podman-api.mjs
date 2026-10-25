@@ -39,10 +39,12 @@ export function createPodmanApi({ socketPath, cgroupV2 }) {
       ) {
         const chunks = [];
         let size = 0;
-        for await (const chunk of req) {
+        // An early return must not destroy the socket before the 413 is flushed.
+        for await (const chunk of req.iterator({ destroyOnReturn: false })) {
           size += chunk.length;
           if (size > 1024 * 1024) {
-            res.writeHead(413).end();
+            res.writeHead(413, { connection: 'close' }).end();
+            req.resume();
             return;
           }
           chunks.push(chunk);

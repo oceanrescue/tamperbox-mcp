@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { access, readFile, stat } from 'node:fs/promises';
-import { dirname, extname, resolve } from 'node:path';
+import path, { dirname, extname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(import.meta.dirname, '..');
@@ -102,16 +102,25 @@ export function validateFirstPartyLink(target, toolPages) {
   throw new Error('not a first-party Tamperbox link');
 }
 
+export function isRepositoryPath(target, repositoryRoot, paths = path) {
+  const relative = paths.relative(
+    paths.resolve(repositoryRoot),
+    paths.resolve(target),
+  );
+  return (
+    relative !== '..' &&
+    !relative.startsWith(`..${paths.sep}`) &&
+    !paths.isAbsolute(relative)
+  );
+}
+
 export async function validateLocalLink(source, target, repositoryRoot = root) {
   if (/^(?:mailto:|tel:|data:|javascript:)/i.test(target)) return;
   const [rawPath, rawFragment] = target.split('#', 2);
   const targetPath = rawPath
     ? resolve(dirname(source), decodeURIComponent(rawPath.split('?')[0]))
     : source;
-  if (
-    !targetPath.startsWith(repositoryRoot + '/') &&
-    targetPath !== repositoryRoot
-  )
+  if (!isRepositoryPath(targetPath, repositoryRoot))
     throw new Error('escapes the repository');
   await access(targetPath);
   const targetStat = await stat(targetPath);

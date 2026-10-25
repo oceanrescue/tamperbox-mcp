@@ -46,7 +46,8 @@ describe('bounded REST bridge', () => {
                   mediaType:
                     op.name === 'json_to_yaml'
                       ? 'application/yaml'
-                      : op.name === 'timestamp_to_iso'
+                      : op.name === 'timestamp_to_iso' ||
+                          op.name === 'mojibake_fix'
                         ? 'text/plain'
                         : 'application/json',
                 },

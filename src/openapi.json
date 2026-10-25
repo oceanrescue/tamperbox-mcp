@@ -847,6 +847,853 @@
         }
       }
     },
+    "/v1/tools/text_inspect": {
+      "post": {
+        "operationId": "text_inspect",
+        "summary": "Inspect text for hidden characters",
+        "description": "Report invisible, direction, control, look-alike and decomposed characters in text with code point and position, and its length in characters, UTF-16 units, UTF-8 bytes and visible characters. A finding is a character present in the text, not proof of an attack. Look-alike letters are found only inside Latin words.",
+        "tags": ["hidden-characters"],
+        "x-tamperbox-website-tool-ids": ["hidden-characters"],
+        "x-tamperbox-media-types": {
+          "accepts": ["text/plain"],
+          "produces": ["application/json"]
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "mediaType": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Media type of value.",
+                        "enum": ["text/plain"]
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1048576,
+                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                      }
+                    },
+                    "required": ["mediaType", "value"],
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "clean": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Also return the text with invisible characters removed, look-alike spaces replaced and the text in composed form (NFC)."
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+              },
+              "example": {
+                "input": { "mediaType": "text/plain", "value": "ad​min" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "mediaType": {
+                          "type": "string",
+                          "enum": ["application/json"]
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 2097152,
+                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                        }
+                      },
+                      "required": ["mediaType", "value"],
+                      "additionalProperties": false
+                    },
+                    "outputs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "mediaType": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Media type of value."
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 2097152,
+                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                          }
+                        },
+                        "required": ["mediaType", "value"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
+                        },
+                        "required": ["id", "tool"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
+                      },
+                      "required": [
+                        "provider",
+                        "engineVersion",
+                        "tool",
+                        "attribution",
+                        "editorUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["output", "warnings", "provenance"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/tools/naughty_strings": {
+      "post": {
+        "operationId": "naughty_strings",
+        "summary": "List hostile test strings",
+        "description": "Return hostile test strings matching a search (the input text; empty for all), each with what it tests. Active payloads (injection, spreadsheet formulas, path traversal) are excluded unless requested; use them only against systems you may test.",
+        "tags": ["naughty-strings"],
+        "x-tamperbox-website-tool-ids": ["naughty-strings"],
+        "x-tamperbox-media-types": {
+          "accepts": ["text/plain"],
+          "produces": ["application/json"]
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "mediaType": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Media type of value.",
+                        "enum": ["text/plain"]
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1048576,
+                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                      }
+                    },
+                    "required": ["mediaType", "value"],
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "category": {
+                        "type": "string",
+                        "enum": [
+                          "empty",
+                          "whitespace",
+                          "unicode",
+                          "encoding",
+                          "names",
+                          "numbers",
+                          "dates",
+                          "formats",
+                          "csv",
+                          "injection",
+                          "paths"
+                        ],
+                        "description": "Limit the list to one category."
+                      },
+                      "includeActive": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Include payloads built to be acted on by a parser, interpreter or file system."
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+              },
+              "example": {
+                "input": { "mediaType": "text/plain", "value": "emoji" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "mediaType": {
+                          "type": "string",
+                          "enum": ["application/json"]
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 2097152,
+                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                        }
+                      },
+                      "required": ["mediaType", "value"],
+                      "additionalProperties": false
+                    },
+                    "outputs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "mediaType": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Media type of value."
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 2097152,
+                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                          }
+                        },
+                        "required": ["mediaType", "value"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
+                        },
+                        "required": ["id", "tool"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
+                      },
+                      "required": [
+                        "provider",
+                        "engineVersion",
+                        "tool",
+                        "attribution",
+                        "editorUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["output", "warnings", "provenance"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/tools/string_generate": {
+      "post": {
+        "operationId": "string_generate",
+        "summary": "Generate an exact-length string",
+        "description": "Generate a string of exactly the length given as the input text (a whole number), counted in characters, UTF-16 units or UTF-8 bytes; or a limit test set around that length; or a counterstring. Lengths up to 1,000,000 (limit sets up to 100,000).",
+        "tags": ["string-length-generator"],
+        "x-tamperbox-website-tool-ids": ["string-length-generator"],
+        "x-tamperbox-media-types": {
+          "accepts": ["text/plain"],
+          "produces": ["application/json"]
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "mediaType": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Media type of value.",
+                        "enum": ["text/plain"]
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1048576,
+                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                      }
+                    },
+                    "required": ["mediaType", "value"],
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "unit": {
+                        "type": "string",
+                        "enum": ["chars", "utf16", "utf8"],
+                        "description": "What the length counts."
+                      },
+                      "fill": {
+                        "type": "string",
+                        "enum": [
+                          "ascii",
+                          "digits",
+                          "latin",
+                          "cjk",
+                          "emoji",
+                          "mixed",
+                          "combining"
+                        ],
+                        "description": "Characters to build the string from."
+                      },
+                      "mode": {
+                        "type": "string",
+                        "enum": ["one", "set", "counter"],
+                        "description": "One string, a limit test set, or a counterstring."
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+              },
+              "example": {
+                "input": { "mediaType": "text/plain", "value": "255" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "mediaType": {
+                          "type": "string",
+                          "enum": ["application/json"]
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 2097152,
+                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                        }
+                      },
+                      "required": ["mediaType", "value"],
+                      "additionalProperties": false
+                    },
+                    "outputs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "mediaType": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Media type of value."
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 2097152,
+                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                          }
+                        },
+                        "required": ["mediaType", "value"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
+                        },
+                        "required": ["id", "tool"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
+                      },
+                      "required": [
+                        "provider",
+                        "engineVersion",
+                        "tool",
+                        "attribution",
+                        "editorUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["output", "warnings", "provenance"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/tools/mojibake_fix": {
+      "post": {
+        "operationId": "mojibake_fix",
+        "summary": "Repair garbled UTF-8 text",
+        "description": "Repair text that was UTF-8 read as Windows-1252 or Latin-1, up to three times over. Text that was not damaged is returned unchanged. Replacement characters (U+FFFD) mark data already lost and are not repaired; other encodings are not detected.",
+        "tags": ["mojibake-fixer"],
+        "x-tamperbox-website-tool-ids": ["mojibake-fixer"],
+        "x-tamperbox-media-types": {
+          "accepts": ["text/plain"],
+          "produces": ["text/plain"]
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "mediaType": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Media type of value.",
+                        "enum": ["text/plain"]
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1048576,
+                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                      }
+                    },
+                    "required": ["mediaType", "value"],
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+              },
+              "example": {
+                "input": { "mediaType": "text/plain", "value": "cafÃ©" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "mediaType": {
+                          "type": "string",
+                          "enum": ["text/plain"]
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 2097152,
+                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                        }
+                      },
+                      "required": ["mediaType", "value"],
+                      "additionalProperties": false
+                    },
+                    "outputs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "mediaType": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Media type of value."
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 2097152,
+                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                          }
+                        },
+                        "required": ["mediaType", "value"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
+                        },
+                        "required": ["id", "tool"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
+                      },
+                      "required": [
+                        "provider",
+                        "engineVersion",
+                        "tool",
+                        "attribution",
+                        "editorUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["output", "warnings", "provenance"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/tools/har_sanitize": {
+      "post": {
+        "operationId": "har_sanitize",
+        "summary": "Sanitize a HAR file",
+        "description": "Replace passwords, tokens, cookies, API keys, private keys, emails and card numbers in a HAR file with stable placeholders, keeping it valid. JWTs keep their claims and lose their signature unless jwt is whole. Detection is by field name and known patterns; names and addresses in free text are not detected, so review the output before sharing.",
+        "tags": ["har-sanitizer"],
+        "x-tamperbox-website-tool-ids": ["har-sanitizer"],
+        "x-tamperbox-media-types": {
+          "accepts": ["application/json"],
+          "produces": ["application/json"]
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "mediaType": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Media type of value.",
+                        "enum": ["application/json"]
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1048576,
+                        "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                      }
+                    },
+                    "required": ["mediaType", "value"],
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "cookies": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Replace every cookie value."
+                      },
+                      "emails": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Replace email addresses."
+                      },
+                      "cards": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Replace card numbers that pass the Luhn check."
+                      },
+                      "ips": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Replace IPv4 addresses with documentation addresses."
+                      },
+                      "jwt": {
+                        "type": "string",
+                        "enum": ["claims", "whole"],
+                        "description": "Keep JWT claims and remove the signature, or replace the whole token."
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+              },
+              "example": {
+                "input": {
+                  "mediaType": "application/json",
+                  "value": "{\"log\":{\"version\":\"1.2\",\"creator\":{\"name\":\"x\",\"version\":\"1\"},\"entries\":[{\"startedDateTime\":\"2026-10-24T09:00:00Z\",\"time\":1,\"request\":{\"method\":\"GET\",\"url\":\"https://a.example/?token=abc123\",\"httpVersion\":\"HTTP/2\",\"headers\":[{\"name\":\"Authorization\",\"value\":\"Bearer abc123def456ghi789\"}],\"cookies\":[],\"queryString\":[],\"headersSize\":-1,\"bodySize\":0},\"response\":{\"status\":200,\"statusText\":\"OK\",\"httpVersion\":\"HTTP/2\",\"headers\":[],\"cookies\":[],\"content\":{\"size\":0,\"mimeType\":\"text/plain\"},\"redirectURL\":\"\",\"headersSize\":-1,\"bodySize\":0},\"cache\":{},\"timings\":{\"send\":0,\"wait\":1,\"receive\":0}}]}}"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Declared result; inspect warnings and partial or unavailable evidence before drawing conclusions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "mediaType": {
+                          "type": "string",
+                          "enum": ["application/json"]
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 2097152,
+                          "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                        }
+                      },
+                      "required": ["mediaType", "value"],
+                      "additionalProperties": false
+                    },
+                    "outputs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "mediaType": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Media type of value."
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 2097152,
+                            "description": "UTF-8 artifact text. JSON artifacts contain serialized JSON."
+                          }
+                        },
+                        "required": ["mediaType", "value"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "tool": { "type": "string" }
+                        },
+                        "required": ["id", "tool"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "provider": { "type": "string" },
+                        "engineVersion": { "type": "string" },
+                        "tool": { "type": "string" },
+                        "attribution": { "type": "string" },
+                        "editorUrl": { "type": "string" }
+                      },
+                      "required": [
+                        "provider",
+                        "engineVersion",
+                        "tool",
+                        "attribution",
+                        "editorUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["output", "warnings", "provenance"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "405": { "$ref": "#/components/responses/Problem" },
+          "408": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "502": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "504": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
     "/v1/tools/api_convert": {
       "post": {
         "operationId": "api_convert",
@@ -13736,6 +14583,11 @@
                             "json_to_yaml",
                             "yaml_to_json",
                             "timestamp_to_iso",
+                            "text_inspect",
+                            "naughty_strings",
+                            "string_generate",
+                            "mojibake_fix",
+                            "har_sanitize",
                             "api_convert"
                           ],
                           "description": "Registered operation name."

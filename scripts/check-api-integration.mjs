@@ -41,8 +41,20 @@ const registry = JSON.parse(
 );
 assert.deepEqual(
   [...new Set(operations.flatMap((op) => op.websiteToolIds))].sort(),
-  registry.tools.map((t) => t.id).sort(),
+  registry.tools
+    .filter((t) => !['browser-only', 'website-only'].includes(t.execution))
+    .map((t) => t.id)
+    .sort(),
 );
+const directory = spec['x-tamperbox-directory'];
+assert.equal(directory.tools.length, registry.tools.length);
+for (const tool of registry.tools) {
+  const entry = directory.tools.find((item) => item.id === tool.id);
+  assert.equal(entry.category, tool.category);
+  assert.deepEqual(entry.related, tool.related);
+  if (['browser-only', 'website-only'].includes(tool.execution))
+    assert.deepEqual(entry.operationIds, []);
+}
 const fixture = createAgentApiFixture();
 const nativeFetch = globalThis.fetch;
 globalThis.fetch = fixture.fetcher;
@@ -105,7 +117,9 @@ try {
   );
   assert.equal(
     discovery.structuredContent.result.websiteToolIds.length,
-    registry.tools.length,
+    registry.tools.filter(
+      (t) => !['browser-only', 'website-only'].includes(t.execution),
+    ).length,
   );
   const completed = [];
   for (const op of agentOperations) {

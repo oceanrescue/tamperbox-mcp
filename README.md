@@ -45,7 +45,7 @@ The groups below summarize the expanded contract. Names identify API operations,
 | Published site files: `robots_txt_checker`, `ads_txt_checker`, `llms_txt`                                                                                                                       | Domain                                                                                                                 | Parsed robots.txt, ads.txt or llms.txt and findings. API schemas define the supported subset; use the additional artifact operations below for rule simulation, alternate site files and draft/repair modes.                               | [Robots/sitemap](https://tamperbox.dev/robots-txt-checker), [ads.txt](https://tamperbox.dev/ads-txt-checker), [llms.txt](https://tamperbox.dev/llms-txt)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Workflow utilities: `tamperbox_pipeline`, `tamperbox_find`, `get_recipe`                                                                                                                        | Pipeline version/input/steps; directory query/media filters; recipe ID in its path                                     | Named pipeline outputs, matching directory entries, or a recipe definition. A recipe fetch does not execute it. Remote directory search makes a network call; MCP `search` does not.                                                       | [Pipeline](https://tamperbox.dev/pipeline), [directory](https://tamperbox.dev)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
-The current catalog contains 120 operations covering all 60 website tool entries. The table summarizes the original live and transform families; the [additional artifact and diagnostic workflows](#additional-artifact-and-diagnostic-workflows) add analysis, build, repair, fixture and inspection variants. In this API & HTTP group, those variants are `jwt_verify`, `jwt_rebuild`, `jwt_fixture`, `timestamp_convert`, `timestamp_adjust` and `api_convert_report`.
+The current catalog contains 120 operations covering 60 remotely executable website tools. The table summarizes the original live and transform families; the [additional artifact and diagnostic workflows](#additional-artifact-and-diagnostic-workflows) add analysis, build, repair, fixture and inspection variants. Across the API and data-format workflows, those variants are `jwt_verify`, `jwt_rebuild`, `jwt_fixture`, `timestamp_convert`, `timestamp_adjust` and `api_convert_report`.
 
 ### Understand inputs and results
 
@@ -219,3 +219,17 @@ npm run test:live  # opt-in legacy API smoke; not proof of expanded API deployme
 Tests cover contracts, real stdio and HTTP MCP clients, API errors, sandbox escapes, cancellation, resource limits and packaging. Coverage gates apply to in-process host modules; the CLI and VM worker are verified through separate processes and are not included in that percentage. The default suite is offline except for loopback HTTP; it never needs model-provider credentials. See [testing](docs/testing.md) and the [verification record](docs/verification.md).
 
 MIT licensed. Contributions should include a failing regression test before the fix; see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Browse website tools by task
+
+The bundled `spec['x-tamperbox-directory']` lists all 67 website tools in 11 categories, including six browser-only tools and the website-only Locator Checker. Use MCP `search` to inspect this metadata without making a network request:
+
+```js
+const directory = spec['x-tamperbox-directory'];
+return {
+  categories: directory.categories,
+  tools: directory.tools.filter((tool) => tool.category === 'localization'),
+};
+```
+
+Each tool includes its category, related tool IDs, website and documentation URLs, execution mode, and `operationIds`. An empty `operationIds` list means the tool has no executable API operation; open its website page instead. Ordinary related links carry no input. Result actions transfer only compatible derived values.

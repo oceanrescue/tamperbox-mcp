@@ -21,6 +21,38 @@ async function connect(
   };
 }
 describe('MCP with official SDK client', () => {
+  it('discovers website-only categories without API calls', async () => {
+    const { client, close } = await connect(
+      new CodeRunner({
+        call: async () => {
+          throw new Error('Unexpected API call');
+        },
+      }),
+    );
+    try {
+      const response = await client.callTool({
+        name: 'search',
+        arguments: {
+          code: "const d=spec['x-tamperbox-directory']; return {total:d.tools.length,categories:d.categories.length,tools:d.tools.filter(t=>t.category==='localization')};",
+        },
+      });
+      expect(response.isError).toBeUndefined();
+      const payload = JSON.parse((response.content as any)[0].text);
+      expect(payload.result).toMatchObject({ total: 67, categories: 11 });
+      expect(payload.result.tools.map((t: any) => t.id)).toEqual([
+        'locale-file-checker',
+        'pseudo-localizer',
+      ]);
+      for (const tool of payload.result.tools) {
+        expect(tool.operationIds).toEqual([]);
+        expect(tool.execution).toBe('browser-only');
+        expect(tool.related).toHaveLength(1);
+      }
+    } finally {
+      await close();
+    }
+  });
+
   it('returns an actual API failure’s operation without its response body', async () => {
     const api = new ApiClient({
       fetch: async (url) =>

@@ -5,6 +5,870 @@
     "version": "1.0.0",
     "description": "Remote calls send inputs to our server. Artifact transforms run without target network access; diagnostic operations inspect public DNS, websites, registries or bounded network probes. Use browser-local tools for sensitive local inputs. Outputs are observations, not guarantees of trust, security or reachability."
   },
+  "x-tamperbox-directory": {
+    "categories": [
+      {
+        "id": "api",
+        "name": "APIs & HTTP",
+        "summary": "Requests, collections, specs and headers."
+      },
+      {
+        "id": "security",
+        "name": "Web security & TLS",
+        "summary": "Certificates, transport security, headers and security contacts."
+      },
+      {
+        "id": "email",
+        "name": "Email & DNS",
+        "summary": "SPF, DMARC, DKIM, MTA-STS, BIMI and headers."
+      },
+      {
+        "id": "domains",
+        "name": "Domains, registration & hosting",
+        "summary": "Registration, hosting networks, providers, technologies and discovered names."
+      },
+      {
+        "id": "dns",
+        "name": "DNS",
+        "summary": "Records, propagation, DNSSEC and reverse naming."
+      },
+      {
+        "id": "network",
+        "name": "Network & IP",
+        "summary": "Your IP and connection, routing, open ports and server reachability."
+      },
+      {
+        "id": "data",
+        "name": "Data formats",
+        "summary": "Convert JSON, YAML and date/time representations."
+      },
+      {
+        "id": "web",
+        "name": "Web & URLs",
+        "summary": "URLs, query strings, user agents, colours."
+      },
+      {
+        "id": "text-testdata",
+        "name": "Text & test data",
+        "summary": "Inspect encoding and Unicode, and generate hostile or boundary-length strings."
+      },
+      {
+        "id": "localization",
+        "name": "Localization",
+        "summary": "Compare resource files and generate expanded text to test translated interfaces."
+      },
+      {
+        "id": "ui-testing",
+        "name": "UI testing",
+        "summary": "Inspect web locators and mobile UI hierarchies for test authoring."
+      }
+    ],
+    "tools": [
+      {
+        "id": "jwt",
+        "name": "JWT Decoder & Verifier",
+        "category": "api",
+        "summary": "Decode JWT claims, verify signatures and edit test tokens locally.",
+        "url": "https://tamperbox.dev/jwt",
+        "docs": "https://docs.tamperbox.dev/tools/jwt/",
+        "execution": "api",
+        "related": ["unix-timestamp", "postman-converter"],
+        "operationIds": [
+          "jwt_decode",
+          "jwt_fixture",
+          "jwt_verify",
+          "jwt_rebuild"
+        ]
+      },
+      {
+        "id": "postman-converter",
+        "name": "Postman Collection Converter",
+        "category": "api",
+        "summary": "Convert Postman collections to OpenAPI or cURL, and back.",
+        "url": "https://tamperbox.dev/postman-converter",
+        "docs": "https://docs.tamperbox.dev/tools/postman-converter/",
+        "execution": "api",
+        "related": ["har-to-mocks", "negative-payload-generator", "jwt"],
+        "operationIds": ["api_convert", "api_convert_report"]
+      },
+      {
+        "id": "json-to-yaml",
+        "name": "JSON to YAML Converter",
+        "category": "data",
+        "summary": "Convert JSON to YAML live and refuse ambiguous or unsafe data.",
+        "url": "https://tamperbox.dev/json-to-yaml",
+        "docs": "https://docs.tamperbox.dev/tools/json-to-yaml/",
+        "execution": "api",
+        "related": ["yaml-to-json"],
+        "operationIds": ["json_to_yaml"]
+      },
+      {
+        "id": "yaml-to-json",
+        "name": "YAML to JSON Converter",
+        "category": "data",
+        "summary": "Convert YAML to JSON live and expose lossy or unsafe constructs.",
+        "url": "https://tamperbox.dev/yaml-to-json",
+        "docs": "https://docs.tamperbox.dev/tools/yaml-to-json/",
+        "execution": "api",
+        "related": ["json-to-yaml"],
+        "operationIds": ["yaml_to_json"]
+      },
+      {
+        "id": "unix-timestamp",
+        "name": "Unix Timestamp Converter",
+        "category": "data",
+        "summary": "Convert exact timestamps, check time zones, and break or heal date inputs.",
+        "url": "https://tamperbox.dev/unix-timestamp",
+        "docs": "https://docs.tamperbox.dev/tools/unix-timestamp/",
+        "execution": "api",
+        "related": ["jwt"],
+        "operationIds": [
+          "timestamp_to_iso",
+          "timestamp_convert",
+          "timestamp_adjust"
+        ]
+      },
+      {
+        "id": "email-domain",
+        "name": "MX Lookup & Email Domain Checker",
+        "category": "email",
+        "summary": "Check MX, null MX and address fallback with live DNS evidence.",
+        "url": "https://tamperbox.dev/email-domain",
+        "docs": "https://docs.tamperbox.dev/tools/email-domain/",
+        "execution": "api",
+        "related": [
+          "email-provider",
+          "spf-checker",
+          "dmarc-checker",
+          "mta-sts-checker"
+        ],
+        "operationIds": ["email_domain", "email_domain_analyze"]
+      },
+      {
+        "id": "email-provider",
+        "name": "Email Provider Lookup",
+        "category": "email",
+        "summary": "Identify email hosts and gateways from MX records, with matching evidence.",
+        "url": "https://tamperbox.dev/email-provider",
+        "docs": "https://docs.tamperbox.dev/tools/email-provider/",
+        "execution": "api",
+        "related": ["email-domain", "spf-checker", "dmarc-checker"],
+        "operationIds": ["email_provider", "email_provider_analyze"]
+      },
+      {
+        "id": "spf-checker",
+        "name": "SPF Checker",
+        "category": "email",
+        "summary": "Count SPF lookups against the limit of 10, see the include tree and plan flattening.",
+        "url": "https://tamperbox.dev/spf-checker",
+        "docs": "https://docs.tamperbox.dev/tools/spf-checker/",
+        "execution": "api",
+        "related": ["dmarc-checker", "dkim-checker", "email-domain"],
+        "operationIds": ["spf_checker", "spf_build", "spf_analyze"]
+      },
+      {
+        "id": "dmarc-checker",
+        "name": "DMARC Checker & Generator",
+        "category": "email",
+        "summary": "Check a DMARC record and build the next one on the way from p=none to p=reject.",
+        "url": "https://tamperbox.dev/dmarc-checker",
+        "docs": "https://docs.tamperbox.dev/tools/dmarc-checker/",
+        "execution": "api",
+        "related": ["spf-checker", "dkim-checker", "bimi-checker"],
+        "operationIds": ["dmarc_checker", "dmarc_analyze", "dmarc_build"]
+      },
+      {
+        "id": "dkim-checker",
+        "name": "DKIM Record Checker",
+        "category": "email",
+        "summary": "Measure a DKIM key from its bytes, spot testing or revoked keys, find selectors.",
+        "url": "https://tamperbox.dev/dkim-checker",
+        "docs": "https://docs.tamperbox.dev/tools/dkim-checker/",
+        "execution": "api",
+        "related": ["dmarc-checker", "spf-checker", "txt-lookup"],
+        "operationIds": [
+          "dkim_checker",
+          "dkim_build",
+          "dkim_analyze",
+          "dkim_discover"
+        ]
+      },
+      {
+        "id": "mta-sts-checker",
+        "name": "MTA-STS & TLS-RPT Checker",
+        "category": "email",
+        "summary": "Check the MTA-STS record, policy file and MX coverage, plus TLS-RPT reporting.",
+        "url": "https://tamperbox.dev/mta-sts-checker",
+        "docs": "https://docs.tamperbox.dev/tools/mta-sts-checker/",
+        "execution": "api",
+        "related": ["dane-checker", "email-domain"],
+        "operationIds": ["mta_sts_checker", "mta_sts_build", "mta_sts_analyze"]
+      },
+      {
+        "id": "bimi-checker",
+        "name": "BIMI Record Checker",
+        "category": "email",
+        "summary": "Preview a BIMI logo in an inbox and check the SVG Tiny PS profile, certificate and DMARC.",
+        "url": "https://tamperbox.dev/bimi-checker",
+        "docs": "https://docs.tamperbox.dev/tools/bimi-checker/",
+        "execution": "api",
+        "related": ["dmarc-checker"],
+        "operationIds": ["bimi_checker", "bimi_build", "bimi_analyze"]
+      },
+      {
+        "id": "email-header-analyzer",
+        "name": "Email Header Analyzer",
+        "category": "email",
+        "summary": "Trace each hop and its delay, and read SPF, DKIM and DMARC results and alignment.",
+        "url": "https://tamperbox.dev/email-header-analyzer",
+        "docs": "https://docs.tamperbox.dev/tools/email-header-analyzer/",
+        "execution": "api",
+        "related": ["spf-checker", "dkim-checker", "dmarc-checker"],
+        "operationIds": ["email_header_analyzer", "ip_enrich"]
+      },
+      {
+        "id": "saas-stack",
+        "name": "SaaS & Email Services from DNS",
+        "category": "domains",
+        "summary": "Identify service verification patterns in TXT records and mail senders named in SPF.",
+        "url": "https://tamperbox.dev/saas-stack",
+        "docs": "https://docs.tamperbox.dev/tools/saas-stack/",
+        "execution": "api",
+        "related": ["website-technology", "dns-provider"],
+        "operationIds": ["saas_stack", "saas_stack_analyze"]
+      },
+      {
+        "id": "website-hosting",
+        "name": "Website Hosting Checker",
+        "category": "domains",
+        "summary": "Follow a domain to its addresses and name the network, ASN and country behind each.",
+        "url": "https://tamperbox.dev/website-hosting",
+        "docs": "https://docs.tamperbox.dev/tools/website-hosting/",
+        "execution": "api",
+        "related": ["cdn-detector", "website-technology", "dns-provider"],
+        "operationIds": ["website_hosting", "ip_enrich"]
+      },
+      {
+        "id": "cdn-detector",
+        "name": "CDN & Proxy Detector",
+        "category": "domains",
+        "summary": "Is a site behind Cloudflare, Fastly, Akamai or CloudFront? Three signals decide.",
+        "url": "https://tamperbox.dev/cdn-detector",
+        "docs": "https://docs.tamperbox.dev/tools/cdn-detector/",
+        "execution": "api",
+        "related": ["website-hosting", "website-technology", "http3-checker"],
+        "operationIds": ["cdn_detector", "cdn_analyze"]
+      },
+      {
+        "id": "dns-provider",
+        "name": "DNS Provider Lookup",
+        "category": "domains",
+        "summary": "Name who runs DNS for a domain from its NS records, and compare nameserver providers.",
+        "url": "https://tamperbox.dev/dns-provider",
+        "docs": "https://docs.tamperbox.dev/tools/dns-provider/",
+        "execution": "api",
+        "related": ["ns-lookup", "soa-lookup", "dnssec-checker"],
+        "operationIds": ["dns_provider", "dns_provider_analyze"]
+      },
+      {
+        "id": "website-technology",
+        "name": "Website Technology Detector",
+        "category": "domains",
+        "summary": "Detect the CMS, frameworks and analytics of a site, with the line that gives each away.",
+        "url": "https://tamperbox.dev/website-technology",
+        "docs": "https://docs.tamperbox.dev/tools/website-technology/",
+        "execution": "api",
+        "related": ["saas-stack", "website-hosting", "cdn-detector"],
+        "operationIds": ["website_technology", "website_technology_analyze"]
+      },
+      {
+        "id": "subdomain-finder",
+        "name": "Subdomain Finder",
+        "category": "domains",
+        "summary": "List subdomains from Certificate Transparency logs, and flag the ones that look internal.",
+        "url": "https://tamperbox.dev/subdomain-finder",
+        "docs": "https://docs.tamperbox.dev/tools/subdomain-finder/",
+        "execution": "api",
+        "related": ["dns-lookup", "domain-health"],
+        "operationIds": ["subdomain_finder", "subdomains_analyze"]
+      },
+      {
+        "id": "domain-availability",
+        "name": "Domain Availability Checker",
+        "category": "domains",
+        "summary": "Check if a domain is free; for a registered one, its age, expiry and status codes.",
+        "url": "https://tamperbox.dev/domain-availability",
+        "docs": "https://docs.tamperbox.dev/tools/domain-availability/",
+        "execution": "api",
+        "related": ["whois-lookup"],
+        "operationIds": ["domain_availability", "registration_analyze"]
+      },
+      {
+        "id": "whois-lookup",
+        "name": "WHOIS & RDAP Lookup",
+        "category": "domains",
+        "summary": "Read a domain’s registrar, dates, locks, nameservers and DNSSEC from the registry.",
+        "url": "https://tamperbox.dev/whois-lookup",
+        "docs": "https://docs.tamperbox.dev/tools/whois-lookup/",
+        "execution": "api",
+        "related": ["domain-availability", "dns-lookup"],
+        "operationIds": ["whois_lookup", "registration_analyze"]
+      },
+      {
+        "id": "domain-health",
+        "name": "Domain Health Checker",
+        "category": "domains",
+        "summary": "DNS, email authentication, HTTPS and security headers in one report, each with a fix.",
+        "url": "https://tamperbox.dev/domain-health",
+        "docs": "https://docs.tamperbox.dev/tools/domain-health/",
+        "execution": "api",
+        "related": ["dns-lookup", "email-domain", "ssl-checker"],
+        "operationIds": ["domain_health"]
+      },
+      {
+        "id": "dns-lookup",
+        "name": "DNS Lookup",
+        "category": "dns",
+        "summary": "Ask Cloudflare, Google, Quad9 or the authoritative server for any record.",
+        "url": "https://tamperbox.dev/dns-lookup",
+        "docs": "https://docs.tamperbox.dev/tools/dns-lookup/",
+        "execution": "api",
+        "related": ["dns-propagation", "dnssec-checker", "txt-lookup"],
+        "operationIds": ["dns_lookup", "dns_lookup_analyze"]
+      },
+      {
+        "id": "dns-propagation",
+        "name": "DNS Propagation Checker",
+        "category": "dns",
+        "summary": "Has the change reached everyone? Twelve public resolvers against the authoritative answer.",
+        "url": "https://tamperbox.dev/dns-propagation",
+        "docs": "https://docs.tamperbox.dev/tools/dns-propagation/",
+        "execution": "api",
+        "related": ["dns-lookup", "dnssec-checker"],
+        "operationIds": ["dns_propagation"]
+      },
+      {
+        "id": "txt-lookup",
+        "name": "TXT Record Lookup",
+        "category": "dns",
+        "summary": "Read every TXT record of a name and what it is for, with length and string checks.",
+        "url": "https://tamperbox.dev/txt-lookup",
+        "docs": "https://docs.tamperbox.dev/tools/txt-lookup/",
+        "execution": "api",
+        "related": ["dns-lookup", "spf-checker", "dmarc-checker"],
+        "operationIds": ["txt_lookup", "txt_lookup_analyze"]
+      },
+      {
+        "id": "cname-lookup",
+        "name": "CNAME Lookup",
+        "category": "dns",
+        "summary": "Follow an alias to its end and catch dangling CNAMEs that risk subdomain takeover.",
+        "url": "https://tamperbox.dev/cname-lookup",
+        "docs": "https://docs.tamperbox.dev/tools/cname-lookup/",
+        "execution": "api",
+        "related": ["dns-lookup", "website-hosting"],
+        "operationIds": ["cname_lookup", "cname_lookup_analyze"]
+      },
+      {
+        "id": "ns-lookup",
+        "name": "NS Lookup",
+        "category": "dns",
+        "summary": "List the nameservers a zone delegates to and the provider behind each.",
+        "url": "https://tamperbox.dev/ns-lookup",
+        "docs": "https://docs.tamperbox.dev/tools/ns-lookup/",
+        "execution": "api",
+        "related": ["dns-provider", "soa-lookup", "dns-propagation"],
+        "operationIds": ["ns_lookup", "ns_lookup_analyze"]
+      },
+      {
+        "id": "soa-lookup",
+        "name": "SOA Lookup",
+        "category": "dns",
+        "summary": "Read a zone’s SOA field by field: serial, contact and timers checked against RFC 1912.",
+        "url": "https://tamperbox.dev/soa-lookup",
+        "docs": "https://docs.tamperbox.dev/tools/soa-lookup/",
+        "execution": "api",
+        "related": ["ns-lookup", "dns-propagation"],
+        "operationIds": ["soa_lookup", "soa_lookup_analyze"]
+      },
+      {
+        "id": "aaaa-lookup",
+        "name": "AAAA Lookup",
+        "category": "dns",
+        "summary": "List a name’s IPv6 addresses and the network behind each one.",
+        "url": "https://tamperbox.dev/aaaa-lookup",
+        "docs": "https://docs.tamperbox.dev/tools/aaaa-lookup/",
+        "execution": "api",
+        "related": ["dns-lookup", "reverse-dns"],
+        "operationIds": ["aaaa_lookup", "aaaa_lookup_analyze"]
+      },
+      {
+        "id": "srv-lookup",
+        "name": "SRV Lookup",
+        "category": "dns",
+        "summary": "See which server a client tries first and the share each gets by weight.",
+        "url": "https://tamperbox.dev/srv-lookup",
+        "docs": "https://docs.tamperbox.dev/tools/srv-lookup/",
+        "execution": "api",
+        "related": ["dns-lookup", "tcp-ping"],
+        "operationIds": ["srv_lookup", "srv_lookup_analyze"]
+      },
+      {
+        "id": "caa-lookup",
+        "name": "CAA Lookup",
+        "category": "dns",
+        "summary": "See which certificate authorities may issue for a name, and which already did.",
+        "url": "https://tamperbox.dev/caa-lookup",
+        "docs": "https://docs.tamperbox.dev/tools/caa-lookup/",
+        "execution": "api",
+        "related": ["ssl-checker", "dnssec-checker"],
+        "operationIds": ["caa_lookup", "caa_lookup_analyze"]
+      },
+      {
+        "id": "dnssec-checker",
+        "name": "DNSSEC Checker",
+        "category": "dns",
+        "summary": "Follow the chain of trust from the root to a name and find the link that breaks it.",
+        "url": "https://tamperbox.dev/dnssec-checker",
+        "docs": "https://docs.tamperbox.dev/tools/dnssec-checker/",
+        "execution": "api",
+        "related": ["dns-lookup", "dns-propagation", "dane-checker"],
+        "operationIds": ["dnssec_checker", "dnssec_checker_analyze"]
+      },
+      {
+        "id": "reverse-dns",
+        "name": "Reverse DNS Lookup",
+        "category": "dns",
+        "summary": "Find the name behind an IP address and check that it points back.",
+        "url": "https://tamperbox.dev/reverse-dns",
+        "docs": "https://docs.tamperbox.dev/tools/reverse-dns/",
+        "execution": "api",
+        "related": ["asn-lookup", "dns-lookup"],
+        "operationIds": ["reverse_dns"]
+      },
+      {
+        "id": "dane-checker",
+        "name": "DANE & TLSA Checker",
+        "category": "security",
+        "summary": "Check that each server’s TLSA record matches the certificate it presents.",
+        "url": "https://tamperbox.dev/dane-checker",
+        "docs": "https://docs.tamperbox.dev/tools/dane-checker/",
+        "execution": "api",
+        "related": ["ssl-checker", "dnssec-checker", "mta-sts-checker"],
+        "operationIds": ["dane_checker", "dane_checker_analyze"]
+      },
+      {
+        "id": "what-is-my-ip",
+        "name": "What Is My IP Address?",
+        "category": "network",
+        "summary": "See your public IP, whether you are on IPv4 or IPv6, and test IPv6.",
+        "url": "https://tamperbox.dev/what-is-my-ip",
+        "docs": "https://docs.tamperbox.dev/tools/what-is-my-ip/",
+        "execution": "api",
+        "related": ["connection-info", "asn-lookup"],
+        "operationIds": ["what_is_my_ip", "ip_enrich"]
+      },
+      {
+        "id": "connection-info",
+        "name": "My Connection Info",
+        "category": "network",
+        "summary": "See your TLS version, cipher, HTTP/2 or HTTP/3 and round-trip time.",
+        "url": "https://tamperbox.dev/connection-info",
+        "docs": "https://docs.tamperbox.dev/tools/connection-info/",
+        "execution": "api",
+        "related": ["what-is-my-ip"],
+        "operationIds": ["connection_info"]
+      },
+      {
+        "id": "asn-lookup",
+        "name": "ASN Lookup",
+        "category": "network",
+        "summary": "Find the network (ASN) that announces an IP and who it is registered to.",
+        "url": "https://tamperbox.dev/asn-lookup",
+        "docs": "https://docs.tamperbox.dev/tools/asn-lookup/",
+        "execution": "api",
+        "related": ["bgp-lookup", "whois-lookup", "reverse-dns"],
+        "operationIds": ["asn_lookup"]
+      },
+      {
+        "id": "bgp-lookup",
+        "name": "BGP Route Lookup",
+        "category": "network",
+        "summary": "Inspect routes for a domain, IP, prefix or ASN: origins, visibility and BGP incidents.",
+        "url": "https://tamperbox.dev/bgp-lookup",
+        "docs": "https://docs.tamperbox.dev/tools/bgp-lookup/",
+        "execution": "api",
+        "related": ["asn-lookup", "whois-lookup"],
+        "operationIds": ["bgp_lookup", "bgp_events"]
+      },
+      {
+        "id": "open-port-checker",
+        "name": "Open Port Checker",
+        "category": "network",
+        "summary": "Check whether a port on your own IP is reachable from the internet.",
+        "url": "https://tamperbox.dev/open-port-checker",
+        "docs": "https://docs.tamperbox.dev/tools/open-port-checker/",
+        "execution": "api",
+        "related": ["tcp-ping"],
+        "operationIds": ["open_port_checker"]
+      },
+      {
+        "id": "tcp-ping",
+        "name": "TCP Ping",
+        "category": "network",
+        "summary": "Test TCP connections to a host and port from three regions at once.",
+        "url": "https://tamperbox.dev/tcp-ping",
+        "docs": "https://docs.tamperbox.dev/tools/tcp-ping/",
+        "execution": "api",
+        "related": ["open-port-checker", "website-down-checker"],
+        "operationIds": ["tcp_ping"]
+      },
+      {
+        "id": "minecraft-server-status",
+        "name": "Minecraft Server Status Checker",
+        "category": "network",
+        "summary": "Check whether a Minecraft Java server is online, its players and ping.",
+        "url": "https://tamperbox.dev/minecraft-server-status",
+        "docs": "https://docs.tamperbox.dev/tools/minecraft-server-status/",
+        "execution": "api",
+        "related": ["tcp-ping", "srv-lookup"],
+        "operationIds": ["minecraft_server_status"]
+      },
+      {
+        "id": "security-headers",
+        "name": "Security Headers Checker",
+        "category": "security",
+        "summary": "Grade a site's security headers from A+ to F, with the exact lines that fix them.",
+        "url": "https://tamperbox.dev/security-headers",
+        "docs": "https://docs.tamperbox.dev/tools/security-headers/",
+        "execution": "api",
+        "related": [
+          "ssl-checker",
+          "mixed-content-checker",
+          "cookie-header-explainer"
+        ],
+        "operationIds": ["security_headers", "security_headers_analyze"]
+      },
+      {
+        "id": "ssl-checker",
+        "name": "SSL Certificate Checker",
+        "category": "security",
+        "summary": "Check a certificate chain: trust, names, expiry, key and the TLS version negotiated.",
+        "url": "https://tamperbox.dev/ssl-checker",
+        "docs": "https://docs.tamperbox.dev/tools/ssl-checker/",
+        "execution": "api",
+        "related": ["dane-checker", "post-quantum-checker", "security-headers"],
+        "operationIds": ["ssl_checker", "tls_analyze", "tls_probe"]
+      },
+      {
+        "id": "post-quantum-checker",
+        "name": "Post-Quantum TLS Checker",
+        "category": "security",
+        "summary": "Test ML-KEM key exchange from our server and review configuration guidance.",
+        "url": "https://tamperbox.dev/post-quantum-checker",
+        "docs": "https://docs.tamperbox.dev/tools/post-quantum-checker/",
+        "execution": "api",
+        "related": ["ssl-checker", "dane-checker"],
+        "operationIds": [
+          "post_quantum_checker",
+          "post_quantum_analyze",
+          "tls_analyze"
+        ]
+      },
+      {
+        "id": "security-txt-checker",
+        "name": "security.txt Checker",
+        "category": "security",
+        "summary": "Validate security.txt against RFC 9116 and get a corrected file to publish.",
+        "url": "https://tamperbox.dev/security-txt-checker",
+        "docs": "https://docs.tamperbox.dev/tools/security-txt-checker/",
+        "execution": "api",
+        "related": ["security-headers", "ssl-checker"],
+        "operationIds": ["security_txt_checker", "security_txt_analyze"]
+      },
+      {
+        "id": "redirect-checker",
+        "name": "Redirect Checker",
+        "category": "api",
+        "summary": "Follow a URL through every redirect: status codes, what changed and time per hop.",
+        "url": "https://tamperbox.dev/redirect-checker",
+        "docs": "https://docs.tamperbox.dev/tools/redirect-checker/",
+        "execution": "api",
+        "related": ["website-down-checker", "http3-checker", "cors-tester"],
+        "operationIds": ["redirect_checker", "redirects_analyze"]
+      },
+      {
+        "id": "mixed-content-checker",
+        "name": "Mixed Content & Cookie Checker",
+        "category": "security",
+        "summary": "Find http:// resources on an HTTPS page and cookies missing Secure, HttpOnly or SameSite.",
+        "url": "https://tamperbox.dev/mixed-content-checker",
+        "docs": "https://docs.tamperbox.dev/tools/mixed-content-checker/",
+        "execution": "api",
+        "related": ["ssl-checker", "security-headers"],
+        "operationIds": [
+          "mixed_content_checker",
+          "cookie_analyze",
+          "mixed_content_analyze"
+        ]
+      },
+      {
+        "id": "http3-checker",
+        "name": "HTTP/3 & Compression Checker",
+        "category": "api",
+        "summary": "Check HTTP/3 support, Brotli, zstd and gzip compression, and HSTS preload readiness.",
+        "url": "https://tamperbox.dev/http3-checker",
+        "docs": "https://docs.tamperbox.dev/tools/http3-checker/",
+        "execution": "api",
+        "related": ["redirect-checker", "ssl-checker"],
+        "operationIds": ["http3_checker", "http3_analyze"]
+      },
+      {
+        "id": "cors-tester",
+        "name": "CORS Tester",
+        "category": "api",
+        "summary": "Send a CORS preflight and see step by step whether a browser would allow the request.",
+        "url": "https://tamperbox.dev/cors-tester",
+        "docs": "https://docs.tamperbox.dev/tools/cors-tester/",
+        "execution": "api",
+        "related": ["redirect-checker", "postman-converter"],
+        "operationIds": ["cors_tester", "cors_analyze"]
+      },
+      {
+        "id": "website-down-checker",
+        "name": "Website Down Checker",
+        "category": "web",
+        "summary": "Check whether a site is down for everyone or just you, and where a failure happened.",
+        "url": "https://tamperbox.dev/website-down-checker",
+        "docs": "https://docs.tamperbox.dev/tools/website-down-checker/",
+        "execution": "api",
+        "related": [
+          "dns-lookup",
+          "tcp-ping",
+          "ssl-checker",
+          "redirect-checker"
+        ],
+        "operationIds": ["website_down_checker"]
+      },
+      {
+        "id": "broken-link-checker",
+        "name": "Broken Link Checker",
+        "category": "web",
+        "summary": "Find broken links, images and scripts on a page, with where each one sits.",
+        "url": "https://tamperbox.dev/broken-link-checker",
+        "docs": "https://docs.tamperbox.dev/tools/broken-link-checker/",
+        "execution": "api",
+        "related": [
+          "website-down-checker",
+          "redirect-checker",
+          "robots-txt-checker"
+        ],
+        "operationIds": ["broken_link_checker"]
+      },
+      {
+        "id": "open-graph-preview",
+        "name": "Open Graph Preview",
+        "category": "web",
+        "summary": "Preview a link as social, chat and search cards, and check its Open Graph tags.",
+        "url": "https://tamperbox.dev/open-graph-preview",
+        "docs": "https://docs.tamperbox.dev/tools/open-graph-preview/",
+        "execution": "api",
+        "related": ["redirect-checker", "robots-txt-checker"],
+        "operationIds": ["open_graph_preview", "open_graph_analyze"]
+      },
+      {
+        "id": "robots-txt-checker",
+        "name": "Robots.txt & Sitemap Checker",
+        "category": "web",
+        "summary": "Validate robots.txt and sitemaps, test URLs, and see which AI crawlers are blocked.",
+        "url": "https://tamperbox.dev/robots-txt-checker",
+        "docs": "https://docs.tamperbox.dev/tools/robots-txt-checker/",
+        "execution": "api",
+        "related": ["broken-link-checker", "llms-txt"],
+        "operationIds": [
+          "robots_txt_checker",
+          "robots_analyze",
+          "sitemap_analyze",
+          "sitemap_inspect",
+          "site_file_inspect"
+        ]
+      },
+      {
+        "id": "ads-txt-checker",
+        "name": "Ads.txt & App-Ads.txt Checker",
+        "category": "web",
+        "summary": "Validate ads.txt or app-ads.txt and check each seller against sellers.json.",
+        "url": "https://tamperbox.dev/ads-txt-checker",
+        "docs": "https://docs.tamperbox.dev/tools/ads-txt-checker/",
+        "execution": "api",
+        "related": ["redirect-checker", "website-down-checker"],
+        "operationIds": [
+          "ads_txt_checker",
+          "ads_txt_analyze",
+          "sellers_inspect",
+          "site_file_inspect"
+        ]
+      },
+      {
+        "id": "llms-txt",
+        "name": "llms.txt Checker & Generator",
+        "category": "web",
+        "summary": "Check a site's llms.txt, see what an AI agent reads, or draft one from its pages.",
+        "url": "https://tamperbox.dev/llms-txt",
+        "docs": "https://docs.tamperbox.dev/tools/llms-txt/",
+        "execution": "api",
+        "related": ["robots-txt-checker", "broken-link-checker"],
+        "operationIds": [
+          "llms_txt",
+          "sitemap_analyze",
+          "sitemap_inspect",
+          "site_file_inspect",
+          "llms_txt_analyze",
+          "llms_txt_draft"
+        ]
+      },
+      {
+        "id": "hidden-characters",
+        "name": "Hidden Character Checker",
+        "category": "text-testdata",
+        "summary": "Find invisible and look-alike characters, count length every way, clean text.",
+        "url": "https://tamperbox.dev/hidden-characters",
+        "docs": "https://docs.tamperbox.dev/tools/hidden-characters/",
+        "execution": "api",
+        "related": ["mojibake-fixer", "naughty-strings"],
+        "operationIds": ["text_inspect"]
+      },
+      {
+        "id": "naughty-strings",
+        "name": "Naughty Strings List",
+        "category": "text-testdata",
+        "summary": "158 hostile test strings that say what they test, copied as JSON, CSV or code.",
+        "url": "https://tamperbox.dev/naughty-strings",
+        "docs": "https://docs.tamperbox.dev/tools/naughty-strings/",
+        "execution": "api",
+        "related": [
+          "string-length-generator",
+          "hidden-characters",
+          "negative-payload-generator"
+        ],
+        "operationIds": ["naughty_strings"]
+      },
+      {
+        "id": "string-length-generator",
+        "name": "Exact-Length String Generator",
+        "category": "text-testdata",
+        "summary": "Strings of an exact length in characters or bytes, limit sets and counterstrings.",
+        "url": "https://tamperbox.dev/string-length-generator",
+        "docs": "https://docs.tamperbox.dev/tools/string-length-generator/",
+        "execution": "api",
+        "related": ["naughty-strings", "negative-payload-generator"],
+        "operationIds": ["string_generate"]
+      },
+      {
+        "id": "mojibake-fixer",
+        "name": "Mojibake Fixer",
+        "category": "text-testdata",
+        "summary": "Turn garbled UTF-8 text back into what was written, and see what was lost.",
+        "url": "https://tamperbox.dev/mojibake-fixer",
+        "docs": "https://docs.tamperbox.dev/tools/mojibake-fixer/",
+        "execution": "api",
+        "related": ["hidden-characters"],
+        "operationIds": ["mojibake_fix"]
+      },
+      {
+        "id": "har-sanitizer",
+        "name": "HAR File Sanitizer",
+        "category": "api",
+        "summary": "Strip secrets and personal data from a HAR file and list its failed requests.",
+        "url": "https://tamperbox.dev/har-sanitizer",
+        "docs": "https://docs.tamperbox.dev/tools/har-sanitizer/",
+        "execution": "api",
+        "related": ["har-to-mocks"],
+        "operationIds": ["har_sanitize"]
+      },
+      {
+        "id": "locator-checker",
+        "name": "Locator Fragility Checker",
+        "category": "ui-testing",
+        "summary": "Render a website or paste HTML to discover candidates and check locator risks.",
+        "url": "https://tamperbox.dev/locator-checker",
+        "docs": "https://docs.tamperbox.dev/tools/locator-checker/",
+        "execution": "website-only",
+        "related": ["mobile-ui-dump-viewer"],
+        "operationIds": []
+      },
+      {
+        "id": "mobile-ui-dump-viewer",
+        "name": "Mobile UI Dump Viewer",
+        "category": "ui-testing",
+        "summary": "Browse Android or Appium XML, query XPath and inspect node attributes.",
+        "url": "https://tamperbox.dev/mobile-ui-dump-viewer",
+        "docs": "https://docs.tamperbox.dev/tools/mobile-ui-dump-viewer/",
+        "execution": "browser-only",
+        "related": ["locator-checker"],
+        "operationIds": []
+      },
+      {
+        "id": "har-to-mocks",
+        "name": "HAR to Mocks",
+        "category": "api",
+        "summary": "Export MSW or WireMock fixtures, create Playwright setup, or compare captures.",
+        "url": "https://tamperbox.dev/har-to-mocks",
+        "docs": "https://docs.tamperbox.dev/tools/har-to-mocks/",
+        "execution": "browser-only",
+        "related": ["har-sanitizer"],
+        "operationIds": []
+      },
+      {
+        "id": "locale-file-checker",
+        "name": "Locale File Checker",
+        "category": "localization",
+        "summary": "Compare JSON, ARB, PO, XLIFF and Android keys and placeholders.",
+        "url": "https://tamperbox.dev/locale-file-checker",
+        "docs": "https://docs.tamperbox.dev/tools/locale-file-checker/",
+        "execution": "browser-only",
+        "related": ["pseudo-localizer"],
+        "operationIds": []
+      },
+      {
+        "id": "pseudo-localizer",
+        "name": "Pseudo-Localizer",
+        "category": "localization",
+        "summary": "Accent and expand resource strings while preserving placeholders.",
+        "url": "https://tamperbox.dev/pseudo-localizer",
+        "docs": "https://docs.tamperbox.dev/tools/pseudo-localizer/",
+        "execution": "browser-only",
+        "related": ["locale-file-checker"],
+        "operationIds": []
+      },
+      {
+        "id": "negative-payload-generator",
+        "name": "Negative Payload Generator",
+        "category": "api",
+        "summary": "Create verified-invalid cases for a supported JSON Schema or OpenAPI subset.",
+        "url": "https://tamperbox.dev/negative-payload-generator",
+        "docs": "https://docs.tamperbox.dev/tools/negative-payload-generator/",
+        "execution": "browser-only",
+        "related": [
+          "naughty-strings",
+          "string-length-generator",
+          "postman-converter"
+        ],
+        "operationIds": []
+      },
+      {
+        "id": "cookie-header-explainer",
+        "name": "Cookie Header Explainer",
+        "category": "api",
+        "summary": "Explain every cookie a page sets and its cache policy: scope, lifetime, size, risks.",
+        "url": "https://tamperbox.dev/cookie-header-explainer",
+        "docs": "https://docs.tamperbox.dev/tools/cookie-header-explainer/",
+        "execution": "website-only",
+        "related": ["redirect-checker", "http3-checker", "cors-tester"],
+        "operationIds": []
+      }
+    ]
+  },
   "servers": [{ "url": "https://api.tamperbox.dev" }],
   "components": {
     "responses": {

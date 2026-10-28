@@ -29,7 +29,7 @@
       "scheduling_policy": "durable_object",
       "images": {
         "mcp": {
-          "image": "registry.cloudflare.com/ba7fb8da4369efe63064e1885553f353/tamperbox-code-mode-preview-tamperboxcodemode-mcp@sha256:4659ac38974db3afe72b833dea3d3488e5228c44bb1dbd71edade556db11b224",
+          "image": "registry.cloudflare.com/ba7fb8da4369efe63064e1885553f353/tamperbox-code-mode-preview-tamperboxcodemode-mcp@sha256:76511b8f3c5bb2f1106175da8b772c4e289b48210d30cd027ae7f2308ba78475",
         },
       },
       "observability": { "logs": { "enabled": false } },
